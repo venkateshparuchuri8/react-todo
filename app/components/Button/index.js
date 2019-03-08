@@ -1,43 +1,61 @@
 /**
  *
- * Button.js
+ * Button
  *
- * A common button, if you pass it a prop "route" it'll render a link to a react-router route
- * otherwise it'll render a link with an onclick
  */
 
-import React, { Children } from 'react';
-import PropTypes from 'prop-types';
+// import React from 'react';
+import styled, { css } from 'styled-components';
 
-import A from './A';
-import StyledButton from './StyledButton';
-import Wrapper from './Wrapper';
-
-function Button(props) {
-  // Render an anchor tag
-  let button = (
-    <A href={props.href} onClick={props.onClick}>
-      {Children.toArray(props.children)}
-    </A>
-  );
-
-  // If the Button has a handleRoute prop, we want to render a button
-  if (props.handleRoute) {
-    button = (
-      <StyledButton onClick={props.handleRoute}>
-        {Children.toArray(props.children)}
-      </StyledButton>
-    );
+const Button = styled.button`
+  cursor: pointer;
+  display: inline-block;
+  min-height: 1em;
+  outline: 0;
+  border: none;
+  vertical-align: baseline;
+  background: #e0e1e2 none;
+  color: rgba(0,0,0,.6);
+  margin: 0 .25em 0 0;
+  padding: .78571429em 1.5em .78571429em;
+  text-transform: none;
+  text-shadow: none;
+  font-weight: 700;
+  line-height: 1em;
+  font-style: normal;
+  text-align: center;
+  text-decoration: none;
+  border-radius:5px;
+  a{
+    color: #fff;
+    text-decoration:none;
   }
-
-  return <Wrapper>{button}</Wrapper>;
-}
-
-Button.propTypes = {
-  handleRoute: PropTypes.func,
-  href: PropTypes.string,
-  onClick: PropTypes.func,
-  children: PropTypes.node.isRequired,
-};
+  ${({ fontSize }) =>
+    fontSize &&
+    css`
+      font-size: ${fontSize || '16px'};
+    `}
+  ${({ color }) =>
+    color &&
+    css`
+      background-color: red;
+    `}
+  ${({ type }) => {
+    if (type === 'primary') {
+      return css`
+        background-color: ${props => props.theme.primaryColor};
+        color: #f5f5f5;
+      `;
+    }
+    if (type === 'secondary') {
+      return css`
+        background-color: ${props => props.theme.secondaryColor};
+        color: #fff;
+      `;
+    }
+    return '';
+  }}
+`; // eslint-disable-line indent
+Button.displayName = 'button';
 
 export default Button;

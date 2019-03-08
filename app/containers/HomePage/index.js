@@ -4,10 +4,10 @@
  * This is the first thing users see of our App, at the '/' route
  */
 
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
-import { FormattedMessage } from 'react-intl';
+// import { Helmet } from 'react-helmet';
+// import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
@@ -19,50 +19,108 @@ import {
   makeSelectLoading,
   makeSelectError,
 } from 'containers/App/selectors';
-import H2 from 'components/H2';
-import ReposList from 'components/ReposList';
-import AtPrefix from './AtPrefix';
-import CenteredSection from './CenteredSection';
-import Form from './Form';
-import Input from './Input';
-import Section from './Section';
-import messages from './messages';
+// import H2 from 'components/H2';
+// import ReposList from 'components/ReposList';
+// import AtPrefix from './AtPrefix';
+// import CenteredSection from './CenteredSection';
+// import Form from './Form';
+// import Input from './Input';
+// import Section from './Section';
+// import messages from './messages';
 import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
 import { makeSelectUsername } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
+import Modal from '../../components/Modal';
+import Button from '../../components/Button';
+import Input from '../../components/Input';
 /* eslint-disable react/prefer-stateless-function */
-export class HomePage extends React.PureComponent {
-  /**
-   * when initial state username is not null, submit the form to load repos
-   */
-  componentDidMount() {
-    if (this.props.username && this.props.username.trim().length > 0) {
-      this.props.onSubmitForm();
-    }
+class HomePage extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      showModal: false,
+    };
+    this.statelesskeys = {
+      zaggle_card_client_id: '',
+    };
+    this.handleModal = this.handleModal.bind(this);
+  }
+
+  handleModal() {
+    const { showModal } = this.state;
+    this.setState({ showModal: !showModal });
+  }
+
+  renderModalBody() {
+    return (
+      <div className="model-content">
+        <h2>sdasd</h2>
+        <p>sdasdasd sds adas das das dasd </p>
+        <div className="top">
+          <Input type="text" />
+          <Button type="submit">Choose unit procedure</Button>
+        </div>
+        <div className="box">
+          <div className="header">
+            <strong>operations</strong>
+            <Input type="file" />
+          </div>
+          <span>
+            one
+            <p className="close" /> <br />
+            one <br />
+            one <br />
+            one <br />
+            one <br />
+          </span>
+        </div>
+        <div className="box noborder-left">
+          <div className="header">
+            <strong>operations</strong>
+            <Input type="file" />
+          </div>
+          <span>
+            one <br />
+            one <br />
+            one <br />
+            one <br />
+            one <br />
+            one <br />
+            one <br />
+            one <br />
+            one <br />
+            one <br />
+          </span>
+        </div>
+      </div>
+    );
   }
 
   render() {
-    const { loading, error, repos } = this.props;
-    const reposListProps = {
-      loading,
-      error,
-      repos,
-    };
-
-    return <div>comes here......</div>;
+    const { showModal } = this.state;
+    return (
+      <div>
+        <Modal
+          show={showModal}
+          header="Update Details"
+          onClose={this.handleModal}
+          size="md"
+        >
+          {this.renderModalBody()}
+        </Modal>
+        <Button type="primary" onClick={this.handleModal}>
+          open Modal
+        </Button>
+      </div>
+    );
   }
 }
 
 HomePage.propTypes = {
-  loading: PropTypes.bool,
-  error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
-  repos: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   onSubmitForm: PropTypes.func,
-  username: PropTypes.string,
-  onChangeUsername: PropTypes.func,
 };
 
 export function mapDispatchToProps(dispatch) {

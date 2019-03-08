@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Input rendering is renders correctly with border 1`] = `
+<input
+  className="sc-bdVaJa lWlPK"
+/>
+`;
+
+exports[`Input rendering is renders correctly with no-border 1`] = `
+<input
+  className="sc-bdVaJa EKMUm"
+/>
+`;
