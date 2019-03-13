@@ -6,7 +6,7 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-// import { Helmet } from 'react-helmet';
+import Modal from 'react-modal';
 // import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
@@ -33,15 +33,26 @@ import { makeSelectUsername } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
-import Modal from '../../components/Modal';
-import Button from '../../components/Button';
-import Input from '../../components/Input';
+// import Modal from '../../components/Modal';
+// import Button from '../../components/Button';
+// import Input from '../../components/Input';
 /* eslint-disable react/prefer-stateless-function */
+const customStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+  },
+};
+
 class HomePage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      showModal: false,
+      showModal: true,
     };
     this.statelesskeys = {
       zaggle_card_client_id: '',
@@ -60,13 +71,13 @@ class HomePage extends Component {
         <h2>sdasd</h2>
         <p>sdasdasd sds adas das das dasd </p>
         <div className="top">
-          <Input type="text" />
-          <Button type="submit">Choose unit procedure</Button>
+          <input type="text" />
+          <button type="submit">Choose unit procedure</button>
         </div>
         <div className="box">
           <div className="header">
             <strong>operations</strong>
-            <Input type="file" />
+            <input type="file" />
           </div>
           <span>
             one
@@ -80,7 +91,7 @@ class HomePage extends Component {
         <div className="box noborder-left">
           <div className="header">
             <strong>operations</strong>
-            <Input type="file" />
+            <input type="file" />
           </div>
           <span>
             one <br />
@@ -104,16 +115,16 @@ class HomePage extends Component {
     return (
       <div>
         <Modal
-          show={showModal}
-          header="Update Details"
-          onClose={this.handleModal}
-          size="md"
+          isOpen={showModal}
+          onRequestClose={this.handleModal}
+          style={customStyles}
+          contentLabel="Example Modal"
         >
           {this.renderModalBody()}
         </Modal>
-        <Button type="primary" onClick={this.handleModal}>
+        {/* <button type="primary" onClick={this.handleModal}>
           open Modal
-        </Button>
+        </button> */}
       </div>
     );
   }

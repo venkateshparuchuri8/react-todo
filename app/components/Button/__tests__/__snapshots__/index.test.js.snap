@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`<Button /> rendering is renders correctly 1`] = `
-<button
-  className="sc-bdVaJa iICpcp"
-/>
-`;
