@@ -26,6 +26,12 @@ const GlobalStyle = createGlobalStyle`
     font-family: Georgia, Times, 'Times New Roman', serif;
     line-height: 1.5em;
   }
+ .ReactModal__Content{
+   width:50%;
+   @media (max-width: 768px) {
+        width:100%;
+      };
+ }
   .model-content{
     .close {
       cursor: pointer;
@@ -76,29 +82,57 @@ const GlobalStyle = createGlobalStyle`
         width:60%;
         border:#ccc solid 1px;
         padding:10px;
+        @media (max-width: 768px) {
+        width:100%;
+      };
       }
       button{
-        width:25%;
-        margin-left:5%;
+        width: 39%;
+        margin-left: 1%;
         border:#ccc solid 1px;
         padding:10px;
+        border-radius:5px;
+        @media (max-width: 768px) {
+        width:100%;
+        margin-left:0;
+        margin-top:10px;
+      };
       }
     }
     .box{
-      border:1px solid #333;
+      border:1px solid #ccc;
       width:50%;
       display:inline-block;
+      @media (max-width: 768px) {
+        width:100%;
+      };
       &.noborder-left{
         border-left:0px !important;
+        @media (max-width: 768px) {
+          border-left:1px solid #ccc !important;
+        };
       }
       .header{
-        background:#ccc;
-        border-bottom:1px solid #333;
+        background:#ddd;
+        border-bottom:1px solid #ccc;
         padding:20px;
         display: block;
         min-height: 60px;
+        label{
+          padding: 3px 10px;
+          background: #fff;
+          float: right;
+          color: #333;
+          font-size: 12px;
+          border-radius: 5px;
+          font-family: sans-serif;
+          input[type="file"] {
+          display: none;
+          }
+        }
         strong{
           float:left;
+          font-weight:normal;
         }
         input{
           float: right;
@@ -112,6 +146,17 @@ const GlobalStyle = createGlobalStyle`
         overflow: scroll;
         height: 200px;
       }
+    }
+    a{
+      text-decoration:none;
+    }
+    .btn-blue{
+      color: #fff;
+      background-color: #007bff;
+      border-color: #007bff;
+      padding:10px 20px;
+      float:right;
+      border-radius:5px;
     }
    }
 `;

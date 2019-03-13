@@ -77,7 +77,10 @@ class HomePage extends Component {
         <div className="box">
           <div className="header">
             <strong>operations</strong>
-            <input type="file" />
+            <label id="#bb">
+            Choose file
+              <input type="file" id="File" size="60" />
+            </label>
           </div>
           <span>
             one
@@ -85,13 +88,16 @@ class HomePage extends Component {
             one <br />
             one <br />
             one <br />
-            one <br />
+            one one one one one one one one one one one one one one one one one one one <br />
           </span>
         </div>
         <div className="box noborder-left">
           <div className="header">
             <strong>operations</strong>
-            <input type="file" />
+            <label id="#bb">
+              Choose file
+              <input type="file" id="File" size="60" />
+            </label>
           </div>
           <span>
             one <br />
@@ -106,6 +112,9 @@ class HomePage extends Component {
             one <br />
           </span>
         </div>
+        <br clear=" all" />
+        <a href="/#">Cancel</a>
+        <button type="submit" className="btn-blue">Import</button>
       </div>
     );
   }
