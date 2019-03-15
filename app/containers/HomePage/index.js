@@ -17,7 +17,7 @@ import {
   makeSelectLoading,
   makeSelectError,
 } from 'containers/App/selectors';
-import { Modal, Card, Upload, Button, Icon, Input } from 'antd';
+import { Modal, Card, Upload, Button, Row, Input, Col } from 'antd';
 import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
 import { makeSelectUsername } from './selectors';
@@ -48,7 +48,7 @@ class HomePage extends Component {
     };
     return (
       <Upload {...props}>
-        <Button>Choose File</Button>
+        <Button className="uploads">Choose File</Button>
       </Upload>
     );
   }
@@ -57,18 +57,39 @@ class HomePage extends Component {
     return (
       <div>
         <p>Some static content</p>
-        <Input />
-        <Upload>
-          <Button>Choose Unit Procedure</Button>
-        </Upload>
-        <Input />
-        <Upload>
-          <Button>Choose Signature file</Button>
-        </Upload>
-        <Card title="Operation" extra={this.renderUpload()} />
-        <Card title="Signature File" extra={this.renderUpload()} />
-        <Button type="default">Cancel</Button>
-        <Button type="primary">Import</Button>
+        <Row align="middle" type="flex" gutter={6} className="margin-tb">
+          <Col xs={24} sm={24} md={17} lg={17} xl={17}>
+            <Input />
+          </Col>
+          <Col xs={24} sm={24} md={7} lg={7} xl={7} className="text-right">
+            <Upload>
+              <Button className="blue-btn">Choose Unit Procedure</Button>
+            </Upload>
+          </Col>
+        </Row>
+
+        <Row align="middle" type="flex" gutter={6} className="margin-tb">
+          <Col xs={24} sm={24} md={17} lg={17} xl={17}>
+            <Input />
+          </Col>
+          <Col xs={24} sm={24} md={7} lg={7} xl={7} className="text-right">
+            <Upload>
+              <Button className="blue-btn">Choose Signature file</Button>
+            </Upload>
+          </Col>
+        </Row>
+        <Row align="middle" type="flex">
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Card title="Operation" extra={this.renderUpload()} className="noBorderRight" />
+          </Col>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Card title="Signature File" extra={this.renderUpload()} />
+          </Col>
+        </Row>
+        <div style={{ textAlign: 'right' }}>
+          <Button type="default" className="uploads">Cancel</Button>
+          <Button type="primary" className="blue-btn margin-left">Import</Button>
+        </div>
       </div>
     );
   }
@@ -87,6 +108,8 @@ class HomePage extends Component {
             footer={null}
             onOk={this.handleModal}
             onCancel={this.handleModal}
+            className="upload-popup"
+            width="750px"
           >
             {this.renderModalContent()}
           </Modal>
