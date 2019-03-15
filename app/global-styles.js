@@ -37,6 +37,15 @@ const GlobalStyle = createGlobalStyle`
       overflow: auto;
     }
   }
+
+  .anticon{
+    &.anticon-paper-clip {
+      display: none
+    }
+  } 
+  .ant-upload-list-item-name {
+    padding: 0px;
+  }
 .text-right{
   text-align:right;
 }
@@ -78,6 +87,10 @@ const GlobalStyle = createGlobalStyle`
     }
     .ant-card-head{
       background:#f8f8f8;
+    }
+    .ant-card-body{
+      height:200px;
+      overflow:scroll;
     }
     .ant-card-head-title{
       color: #525252;

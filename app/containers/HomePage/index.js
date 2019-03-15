@@ -23,17 +23,19 @@ import { changeUsername } from './actions';
 import { makeSelectUsername } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-
 class HomePage extends Component {
   constructor(props) {
     super(props);
     this.state = {
       showModal: true,
+      operationFileList: [],
+      signatureFileList: [],
     };
     this.statelesskeys = {
       zaggle_card_client_id: '',
     };
     this.handleModal = this.handleModal.bind(this);
+    this.handleFileUpload = this.handleFileUpload.bind(this);
   }
 
   handleModal() {
@@ -41,19 +43,77 @@ class HomePage extends Component {
     this.setState({ showModal: !showModal });
   }
 
-  renderUpload() {
-    const props = {
-      // onChange: this.handleChange,
-      multiple: true,
-    };
+  handleFileUpload(actionFrom, { fileList }) {
+    // const list = { ...fileList };
+    // const { operationFileList, signatureFileList } = this.state;
+    // if (actionFrom === 'signatureFileList') {
+    //   const result = fileList.map((item) => (
+
+    //   ));
+    // }
+    this.setState({
+      [actionFrom]: fileList,
+    });
+  }
+
+  renderUploadItem(item) {
     return (
-      <Upload {...props}>
-        <Button className="uploads">Choose File</Button>
+      <div className="ant-upload-list-item ant-upload-list-item-undefined">
+        <div className="ant-upload-list-item-info">
+          <span>
+            <span
+              className="ant-upload-list-item-name"
+              title="43401240_2184080018333916_1646186146226503680_o.jpg"
+            >
+              {item.name}
+            </span>
+            <i
+              aria-label="icon: close"
+              title="Remove file"
+              tabIndex="-1"
+              className="anticon anticon-close"
+            />
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  renderFileList(actionFrom) {
+    const { operationFileList, signatureFileList } = this.state;
+    switch (actionFrom) {
+      case 'operationFileList':
+        return operationFileList;
+      case 'signatureFileList':
+        return signatureFileList;
+
+      default:
+        return [];
+    }
+  }
+
+  renderUpload(actionFrom, props) {
+    return (
+      <Upload
+        {...props}
+        key={actionFrom}
+        onChange={params => this.handleFileUpload(actionFrom, params)}
+        fileList={this.renderFileList(actionFrom)}
+      >
+        <Button>Choose File</Button>
       </Upload>
     );
   }
 
   renderModalContent() {
+    const bulkPropsCommon = {
+      multiple: true,
+      // type: 'select',
+      showUploadList: true,
+      action: null,
+      beforeUpload: () => false,
+    };
+    // const { operationFileList = [], signatureFileList = [] } = this.state;
     return (
       <div>
         <p>Some static content</p>
@@ -78,17 +138,39 @@ class HomePage extends Component {
             </Upload>
           </Col>
         </Row>
-        <Row align="middle" type="flex">
+        <Row align="top" type="flex">
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-            <Card title="Operation" extra={this.renderUpload()} className="noBorderRight" />
+            <Card
+              title="Operation"
+              extra={this.renderUpload('operationFileList', bulkPropsCommon)}
+              className="noBorderRight"
+            >
+              {/* {operationFileList.length &&
+                operationFileList.map(item =>
+                  // <p key={item.name}>{item.name}</p>
+                  this.renderUploadItem(item),
+                )} */}
+            </Card>
           </Col>
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-            <Card title="Signature File" extra={this.renderUpload()} />
+            <Card
+              title="Signature File"
+              extra={this.renderUpload('signatureFileList', bulkPropsCommon)}
+            >
+              {/* {signatureFileList.length &&
+                signatureFileList.map(item => (
+                  <p key={item.name}>{item.name}</p>
+                ))} */}
+            </Card>
           </Col>
         </Row>
         <div style={{ textAlign: 'right' }}>
-          <Button type="default" className="uploads">Cancel</Button>
-          <Button type="primary" className="blue-btn margin-left">Import</Button>
+          <Button type="default" className="uploads">
+            Cancel
+          </Button>
+          <Button type="primary" className="blue-btn margin-left">
+            Import
+          </Button>
         </div>
       </div>
     );
