@@ -17,7 +17,7 @@ import {
   makeSelectLoading,
   makeSelectError,
 } from 'containers/App/selectors';
-import { Modal, Card, Upload, Button, Icon } from 'antd';
+import { Modal, Card, Upload, Button, Icon, Input } from 'antd';
 import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
 import { makeSelectUsername } from './selectors';
@@ -57,6 +57,14 @@ class HomePage extends Component {
     return (
       <div>
         <p>Some static content</p>
+        <Input />
+        <Upload>
+          <Button>Choose Unit Procedure</Button>
+        </Upload>
+        <Input />
+        <Upload>
+          <Button>Choose Signature file</Button>
+        </Upload>
         <Card title="Operation" extra={this.renderUpload()} />
         <Card title="Signature File" extra={this.renderUpload()} />
         <Button type="default">Cancel</Button>
