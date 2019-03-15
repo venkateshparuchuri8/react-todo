@@ -6,7 +6,7 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Modal from 'react-modal';
+// import Modal from 'react-modal';
 // import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
@@ -27,6 +27,7 @@ import {
 // import Input from './Input';
 // import Section from './Section';
 // import messages from './messages';
+import { Modal, Card, Upload, Button, Icon } from 'antd';
 import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
 import { makeSelectUsername } from './selectors';
@@ -37,16 +38,16 @@ import saga from './saga';
 // import Button from '../../components/Button';
 // import Input from '../../components/Input';
 /* eslint-disable react/prefer-stateless-function */
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-  },
-};
+// const customStyles = {
+//   content: {
+//     top: '50%',
+//     left: '50%',
+//     right: 'auto',
+//     bottom: 'auto',
+//     marginRight: '-50%',
+//     transform: 'translate(-50%, -50%)',
+//   },
+// };
 
 class HomePage extends Component {
   constructor(props) {
@@ -63,6 +64,30 @@ class HomePage extends Component {
   handleModal() {
     const { showModal } = this.state;
     this.setState({ showModal: !showModal });
+  }
+
+  renderUpload() {
+    const props = {
+      // onChange: this.handleChange,
+      multiple: true,
+    };
+    return (
+      <Upload {...props}>
+        <Button>Choose File</Button>
+      </Upload>
+    );
+  }
+
+  renderModalContent() {
+    return (
+      <div>
+        <p>Some static content</p>
+        <Card title="Operation" extra={this.renderUpload()} />
+        <Card title="Signature File" extra={this.renderUpload()} />
+        <Button type="default">Cancel</Button>
+        <Button type="primary">Import</Button>
+      </div>
+    );
   }
 
   renderModalBody() {
@@ -126,14 +151,28 @@ class HomePage extends Component {
     const { showModal } = this.state;
     return (
       <div>
-        <Modal
+        {/* <Modal
           isOpen={showModal}
           onRequestClose={this.handleModal}
           style={customStyles}
           contentLabel="Example Modal"
         >
           {this.renderModalBody()}
-        </Modal>
+        </Modal> */}
+        <div>
+          <Button type="primary" onClick={this.handleModal}>
+            Open Modal
+          </Button>
+          <Modal
+            title="Import Operations"
+            visible={showModal}
+            footer={null}
+            onOk={this.handleModal}
+            onCancel={this.handleModal}
+          >
+            {this.renderModalContent()}
+          </Modal>
+        </div>
         {/* <button type="primary" onClick={this.handleModal}>
           open Modal
         </button> */}
@@ -142,9 +181,7 @@ class HomePage extends Component {
   }
 }
 
-HomePage.propTypes = {
-  onSubmitForm: PropTypes.func,
-};
+HomePage.propTypes = {};
 
 export function mapDispatchToProps(dispatch) {
   return {
