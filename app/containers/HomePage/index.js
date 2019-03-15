@@ -30,12 +30,15 @@ class HomePage extends Component {
       showModal: true,
       operationFileList: [],
       signatureFileList: [],
+      unitProcedure: [],
+      signature: [],
     };
     this.statelesskeys = {
       zaggle_card_client_id: '',
     };
     this.handleModal = this.handleModal.bind(this);
     this.handleFileUpload = this.handleFileUpload.bind(this);
+    this.handleClear = this.handleClear.bind(this);
   }
 
   handleModal() {
@@ -53,6 +56,13 @@ class HomePage extends Component {
     // }
     this.setState({
       [actionFrom]: fileList,
+    });
+  }
+
+  handleClear(actionFrom) {
+    console.log('here coems.....', actionFrom);
+    this.setState({
+      [actionFrom]: [],
     });
   }
 
@@ -92,7 +102,11 @@ class HomePage extends Component {
     }
   }
 
-  renderUpload(actionFrom, props) {
+  renderUpload(
+    actionFrom,
+    props,
+    { title, buttonClass } = { title: 'Choose File', buttonClass: 'uploads' },
+  ) {
     return (
       <Upload
         {...props}
@@ -100,43 +114,58 @@ class HomePage extends Component {
         onChange={params => this.handleFileUpload(actionFrom, params)}
         fileList={this.renderFileList(actionFrom)}
       >
-        <Button className="uploads">Choose File</Button>
+        <Button className={buttonClass}>{title}</Button>
       </Upload>
     );
   }
 
   renderModalContent() {
+    const inputPropsCommon = {
+      multiple: false,
+      showUploadList: false,
+      action: null,
+      beforeUpload: () => false,
+    };
     const bulkPropsCommon = {
       multiple: true,
-      // type: 'select',
       showUploadList: true,
       action: null,
       beforeUpload: () => false,
     };
-    // const { operationFileList = [], signatureFileList = [] } = this.state;
+    const { unitProcedure, signature } = this.state;
     return (
       <div>
         <h2>Hello</h2>
         <p>Some static content</p>
         <Row align="middle" type="flex" gutter={6} className="margin-tb">
           <Col xs={24} sm={24} md={17} lg={17} xl={17}>
-            <Input />
+            <Input
+              value={unitProcedure.length ? unitProcedure[0].name : ''}
+              allowClear
+              onChange={() => this.handleClear('unitProcedure')}
+            />
           </Col>
           <Col xs={24} sm={24} md={7} lg={7} xl={7} className="text-right">
-            <Upload>
-              <Button className="blue-btn">Choose Unit Procedure</Button>
-            </Upload>
+            {this.renderUpload('unitProcedure', inputPropsCommon, {
+              title: 'Choose Unit Procedure',
+              buttonClass: 'blue-btn',
+            })}
           </Col>
         </Row>
 
         <Row align="middle" type="flex" gutter={6} className="margin-tb">
           <Col xs={24} sm={24} md={17} lg={17} xl={17}>
-            <Input />
+            <Input
+              value={signature.length ? signature[0].name : ''}
+              allowClear
+              onChange={() => this.handleClear('signature')}
+            />
           </Col>
           <Col xs={24} sm={24} md={7} lg={7} xl={7} className="text-right">
-            <Upload>
-              <Button className="blue-btn">Choose Signature file</Button>
-            </Upload>
+            {this.renderUpload('signature', inputPropsCommon, {
+              title: 'Choose Signature File',
+              buttonClass: 'blue-btn',
+            })}
           </Col>
         </Row>
         <Row align="top" type="flex">
