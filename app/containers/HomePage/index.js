@@ -100,7 +100,7 @@ class HomePage extends Component {
         onChange={params => this.handleFileUpload(actionFrom, params)}
         fileList={this.renderFileList(actionFrom)}
       >
-        <Button>Choose File</Button>
+        <Button className="uploads">Choose File</Button>
       </Upload>
     );
   }
@@ -116,6 +116,7 @@ class HomePage extends Component {
     // const { operationFileList = [], signatureFileList = [] } = this.state;
     return (
       <div>
+        <h2>Hello</h2>
         <p>Some static content</p>
         <Row align="middle" type="flex" gutter={6} className="margin-tb">
           <Col xs={24} sm={24} md={17} lg={17} xl={17}>

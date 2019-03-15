@@ -32,7 +32,8 @@ const GlobalStyle = createGlobalStyle`
       position: absolute;
       left: 10px;
       margin-top: 30px;
-      width: 90%;
+      width: 99%;
+      padding-right:10px;
       height: 170px;
       overflow: auto;
     }
@@ -45,11 +46,20 @@ const GlobalStyle = createGlobalStyle`
   } 
   .ant-upload-list-item-name {
     padding: 0px;
+    &:hover{
+      background-color:transparent;
+    }
+  }
+  .ant-upload-list-item:hover .ant-upload-list-item-info{
+    background-color:transparent;
   }
 .text-right{
   text-align:right;
 }
   .upload-popup{
+    h2{
+      font-weight:bold;
+    }
     .margin-tb{
       margin:20px 0px;
     }
@@ -68,6 +78,15 @@ const GlobalStyle = createGlobalStyle`
     input{
       background:#f8f7fc;
       border-color:#c4c5c7;
+      &:hover{
+        border-color: #c4c5c7;
+      }
+      &:focus{
+        border-color: #c4c5c7;
+        border-right-width: 1px !important;
+        outline: 0;
+        box-shadow: none;
+      }
     }
     .uploads{
       background:#f8f7fc;
