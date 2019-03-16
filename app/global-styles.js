@@ -27,7 +27,10 @@ const GlobalStyle = createGlobalStyle`
     line-height: 1.5em;
   }
 
-  .ant-upload-list{
+  
+  .upload-popup{
+
+    .ant-upload-list{
     &.ant-upload-list-text{
       position: absolute;
       left: 10px;
@@ -56,7 +59,7 @@ const GlobalStyle = createGlobalStyle`
 .text-right{
   text-align:right;
 }
-  .upload-popup{
+
     h2{
       font-weight:bold;
     }
