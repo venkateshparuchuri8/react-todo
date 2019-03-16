@@ -18,11 +18,18 @@ import {
   makeSelectError,
 } from 'containers/App/selectors';
 import { Modal, Card, Upload, Button, Row, Input, Col } from 'antd';
+import { isEqual, find, remove, findIndex } from 'lodash';
 import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
 import { makeSelectUsername } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
+
+const isEqualLodash = (value, other) => isEqual(value, other);
+const findLodash = (array, object) => find(array, object);
+const removeLodash = (array, object) => remove(array, object);
+const findIndexLodash = (array, object) => findIndex(array, object);
+
 class HomePage extends Component {
   constructor(props) {
     super(props);
@@ -39,6 +46,7 @@ class HomePage extends Component {
     this.handleModal = this.handleModal.bind(this);
     this.handleFileUpload = this.handleFileUpload.bind(this);
     this.handleClear = this.handleClear.bind(this);
+    this.handleImport = this.handleImport.bind(this);
   }
 
   handleModal() {
@@ -46,17 +54,46 @@ class HomePage extends Component {
     this.setState({ showModal: !showModal });
   }
 
-  handleFileUpload(actionFrom, { fileList }) {
-    // const list = { ...fileList };
-    // const { operationFileList, signatureFileList } = this.state;
-    // if (actionFrom === 'signatureFileList') {
-    //   const result = fileList.map((item) => (
-
-    //   ));
-    // }
+  validateSgnFiles(fileList, actionStatus) {
+    const { operationFileList } = this.state;
+    const arr = [];
+    for (let i = 0; i < fileList.length; i += 1) {
+      const fileName = fileList[i].name.split('.sgn');
+      const result = findLodash(operationFileList, { name: fileName[0] });
+      if (result) {
+        arr.push(fileList[i]);
+      } else {
+        alert('respective operation file not found');
+      }
+    }
     this.setState({
-      [actionFrom]: fileList,
+      [actionStatus]: arr,
     });
+  }
+
+  validateInputSgnFile(fileList, actionStatus) {
+    const { unitProcedure } = this.state;
+    const fileName = fileList[0].name.split('.sgn');
+    const result = findLodash(unitProcedure, { name: fileName[0] });
+    if (result) {
+      this.setState({
+        [actionStatus]: fileList,
+      });
+    } else {
+      alert('respective operation file not found');
+    }
+  }
+
+  handleFileUpload(actionFrom, { fileList }) {
+    if (actionFrom === 'signatureFileList') {
+      this.validateSgnFiles(fileList, actionFrom);
+    } else if (actionFrom === 'signature') {
+      this.validateInputSgnFile(fileList, actionFrom);
+    } else {
+      this.setState({
+        [actionFrom]: fileList,
+      });
+    }
   }
 
   handleClear(actionFrom) {
@@ -64,6 +101,10 @@ class HomePage extends Component {
     this.setState({
       [actionFrom]: [],
     });
+  }
+
+  handleImport() {
+    alert('import clicked.....');
   }
 
   renderUploadItem(item) {
@@ -162,10 +203,14 @@ class HomePage extends Component {
             />
           </Col>
           <Col xs={24} sm={24} md={7} lg={7} xl={7} className="text-right">
-            {this.renderUpload('signature', inputPropsCommon, {
-              title: 'Choose Signature File',
-              buttonClass: 'blue-btn',
-            })}
+            {this.renderUpload(
+              'signature',
+              { ...inputPropsCommon, accept: '.sgn' },
+              {
+                title: 'Choose Signature File',
+                buttonClass: 'blue-btn',
+              },
+            )}
           </Col>
         </Row>
         <Row align="top" type="flex">
@@ -185,7 +230,10 @@ class HomePage extends Component {
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Card
               title="Signature File"
-              extra={this.renderUpload('signatureFileList', bulkPropsCommon)}
+              extra={this.renderUpload('signatureFileList', {
+                ...bulkPropsCommon,
+                accept: '.sgn',
+              })}
             >
               {/* {signatureFileList.length &&
                 signatureFileList.map(item => (
@@ -195,10 +243,14 @@ class HomePage extends Component {
           </Col>
         </Row>
         <div style={{ textAlign: 'right' }}>
-          <Button type="default" className="uploads">
+          <Button type="default" className="uploads" onClick={this.handleModal}>
             Cancel
           </Button>
-          <Button type="primary" className="blue-btn margin-left">
+          <Button
+            type="primary"
+            className="blue-btn margin-left"
+            onClick={this.handleImport}
+          >
             Import
           </Button>
         </div>
