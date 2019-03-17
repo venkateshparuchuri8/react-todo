@@ -18,17 +18,14 @@ import {
   makeSelectError,
 } from 'containers/App/selectors';
 import { Modal, Card, Upload, Button, Row, Input, Col } from 'antd';
-import { isEqual, find, remove, findIndex } from 'lodash';
+import { find } from 'lodash';
 import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
 import { makeSelectUsername } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
-const isEqualLodash = (value, other) => isEqual(value, other);
 const findLodash = (array, object) => find(array, object);
-const removeLodash = (array, object) => remove(array, object);
-const findIndexLodash = (array, object) => findIndex(array, object);
 
 class HomePage extends Component {
   constructor(props) {
@@ -104,7 +101,20 @@ class HomePage extends Component {
   }
 
   handleImport() {
-    alert('import clicked.....');
+    const {
+      operationFileList,
+      signatureFileList,
+      unitProcedure,
+      signature,
+    } = this.state;
+    const is_opn_sgn_valid =
+      operationFileList.length === signatureFileList.length;
+    const is_pdr_sgn_valid = unitProcedure.length === signature.length;
+    if (is_opn_sgn_valid && is_pdr_sgn_valid) {
+      alert('validation success......');
+    } else {
+      alert('validation failed......');
+    }
   }
 
   renderUploadItem(item) {
@@ -187,10 +197,14 @@ class HomePage extends Component {
             />
           </Col>
           <Col xs={24} sm={24} md={7} lg={7} xl={7} className="text-right">
-            {this.renderUpload('unitProcedure', inputPropsCommon, {
-              title: 'Choose Unit Procedure',
-              buttonClass: 'blue-btn',
-            })}
+            {this.renderUpload(
+              'unitProcedure',
+              { ...inputPropsCommon, accept: '.pdr' },
+              {
+                title: 'Choose Unit Procedure',
+                buttonClass: 'blue-btn',
+              },
+            )}
           </Col>
         </Row>
 
@@ -217,7 +231,10 @@ class HomePage extends Component {
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Card
               title="Operation"
-              extra={this.renderUpload('operationFileList', bulkPropsCommon)}
+              extra={this.renderUpload('operationFileList', {
+                ...bulkPropsCommon,
+                accept: '.opn',
+              })}
               className="noBorderRight"
             >
               {/* {operationFileList.length &&
