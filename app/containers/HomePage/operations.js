@@ -1,36 +1,25 @@
-/*
- * HomePage
- *
- * This is the first thing users see of our App, at the '/' route
- */
-
 import React, { Component } from 'react';
-import axios from 'axios';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { compose } from 'redux';
-import { createStructuredSelector } from 'reselect';
+import axios from 'axios';
 
-import injectReducer from 'utils/injectReducer';
-import injectSaga from 'utils/injectSaga';
 import {
-  makeSelectRepos,
-  makeSelectLoading,
-  makeSelectError,
-} from 'containers/App/selectors';
-import { Modal, Card, Upload, Button, Row, Input, Col, List } from 'antd';
-import { find, map, pick, forEach, without } from 'lodash';
-import { loadRepos } from '../App/actions';
-import { changeUsername } from './actions';
-import { makeSelectUsername } from './selectors';
-import reducer from './reducer';
-import saga from './saga';
+  Modal,
+  Card,
+  Upload,
+  Button,
+  Row,
+  Input,
+  Col,
+  List,
+  Typography,
+} from 'antd';
+import { find, map, without } from 'lodash';
 
 const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
 const withoutLodash = (array, values) => without(array, values);
 
-class HomePage extends Component {
+export class Operations extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -84,7 +73,11 @@ class HomePage extends Component {
     for (const property in obj) {
       if (obj.hasOwnProperty(property) && obj[property]) {
         if (namespace) {
-          formKey = `${namespace}[${property}]`;
+          if (namespace === 'operations' || namespace === 'signatures') {
+            formKey = namespace;
+          } else {
+            formKey = `${namespace}[${property}]`;
+          }
         } else {
           formKey = property;
         }
@@ -140,8 +133,11 @@ class HomePage extends Component {
   }
 
   apiFetchLoggedInUserDetails = payload => {
+    const { deviceName } = this.state;
+    const staticData = 'https://localhost:8089/recipe/uploadMultipleFiles';
+    const url = `${staticData}/${deviceName}`;
     axios
-      .post('https://localhost:8089/recipe/uploadfile', payload)
+      .post(url, payload)
       .then(response => {
         console.log(response);
       })
@@ -160,38 +156,25 @@ class HomePage extends Component {
         ? withoutLodash(opns1, ...sgns1)
         : withoutLodash(sgns1, ...opns1);
     const result1 = result.map(item => item.concat(type));
-    alert(`${result1.join()} files missing`);
+    alert(`Please upload ${result1.join()} to proceed further`);
   }
 
   handleImport() {
-    const { operationFileList, signatureFileList, deviceName } = this.state;
+    const { operationFileList, signatureFileList } = this.state;
     const is_opn_sgn_valid =
       operationFileList.length === signatureFileList.length;
     if (is_opn_sgn_valid) {
-      // alert('validation success......');
       const payload = {
-        // recipe_payload,
-        deviceName,
         operations: [],
         signatures: [],
       };
-      //   payload.recipe_payload.recipe_name = deviceName;
       for (let i = 0; i < operationFileList.length; i += 1) {
-        const data = {
-          fileName: operationFileList[i].name,
-          fileData: operationFileList[i].originFileObj,
-        };
-        payload.operations.push(data);
+        payload.operations.push(operationFileList[i].originFileObj);
       }
       for (let i = 0; i < signatureFileList.length; i += 1) {
-        const data = {
-          fileName: signatureFileList[i].name,
-          fileData: signatureFileList[i].originFileObj,
-        };
-        payload.signatures.push(data);
+        payload.signatures.push(signatureFileList[i].originFileObj);
       }
-      const formData = this.objectToFormData({ payload });
-      console.log('here form data....', formData);
+      const formData = this.objectToFormData(payload);
       this.apiFetchLoggedInUserDetails(formData);
     } else if (operationFileList.length > signatureFileList.length) {
       this.validateFiles(operationFileList, signatureFileList, '.sgn');
@@ -368,4 +351,4 @@ function mapStateToProps(state) {
 export default connect(
   mapStateToProps,
   {},
-)(HomePage);
+)(Operations);

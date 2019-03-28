@@ -1,36 +1,14 @@
-/*
- * HomePage
- *
- * This is the first thing users see of our App, at the '/' route
- */
-
 import React, { Component } from 'react';
-import axios from 'axios';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { compose } from 'redux';
-import { createStructuredSelector } from 'reselect';
-
-import injectReducer from 'utils/injectReducer';
-import injectSaga from 'utils/injectSaga';
-import {
-  makeSelectRepos,
-  makeSelectLoading,
-  makeSelectError,
-} from 'containers/App/selectors';
+import axios from 'axios';
 import { Modal, Card, Upload, Button, Row, Input, Col, List } from 'antd';
-import { find, map, pick, forEach, without } from 'lodash';
-import { loadRepos } from '../App/actions';
-import { changeUsername } from './actions';
-import { makeSelectUsername } from './selectors';
-import reducer from './reducer';
-import saga from './saga';
+import { find, map, without } from 'lodash';
 
 const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
 const withoutLodash = (array, values) => without(array, values);
 
-class HomePage extends Component {
+export class Procedures extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -56,26 +34,19 @@ class HomePage extends Component {
     this.setState({ showModal: !showModal });
   }
 
-  handleChooseDevice(deviceName) {
-    this.setState({ deviceName, showModal: true });
-  }
-
-  validateSgnFiles(fileList, actionStatus) {
-    const { operationFileList } = this.state;
-    const arr = [];
-    for (let i = 0; i < fileList.length; i += 1) {
-      const fileName = fileList[i].name.split('.sgn');
-      const result = findLodash(operationFileList, { name: fileName[0] });
-      if (result) {
-        arr.push(fileList[i]);
-      } else {
-        alert('respective Signature file not found');
-      }
-    }
-    this.setState({
-      [actionStatus]: arr,
-    });
-  }
+  apiFetchLoggedInUserDetails = payload => {
+    const { deviceName } = this.state;
+    const staticData = 'https://localhost:8089/recipe/uploadMultipleFiles';
+    const url = `${staticData}/${deviceName}`;
+    axios
+      .post(url, payload)
+      .then(response => {
+        console.log(response);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
 
   objectToFormData = (obj, form, namespace) => {
     const fd = form || new FormData();
@@ -84,7 +55,11 @@ class HomePage extends Component {
     for (const property in obj) {
       if (obj.hasOwnProperty(property) && obj[property]) {
         if (namespace) {
-          formKey = `${namespace}[${property}]`;
+          if (namespace === 'operations' || namespace === 'signatures') {
+            formKey = namespace;
+          } else {
+            formKey = `${namespace}[${property}]`;
+          }
         } else {
           formKey = property;
         }
@@ -107,6 +82,72 @@ class HomePage extends Component {
     return fd;
   };
 
+  handleChooseDevice(deviceName) {
+    this.setState({ deviceName, showModal: true });
+  }
+
+  validateFiles(_opns, _sgns, type) {
+    const opns = mapLodash(_opns, 'name');
+    const sgns = mapLodash(_sgns, 'name');
+    const opns1 = opns.map(item => item.split('.')[0]);
+    const sgns1 = sgns.map(item => item.split('.')[0]);
+    const result =
+      type === '.sgn'
+        ? withoutLodash(opns1, ...sgns1)
+        : withoutLodash(sgns1, ...opns1);
+    const result1 = result.map(item => item.concat(type));
+    alert(`Please upload ${result1.join()} to proceed further`);
+  }
+
+  handleImport() {
+    const {
+      operationFileList,
+      signatureFileList,
+      unitProcedure,
+      signature,
+    } = this.state;
+    const is_opn_sgn_valid =
+      operationFileList.length === signatureFileList.length;
+    const is_pdr_sgn_valid = unitProcedure.length === signature.length;
+    if (is_opn_sgn_valid && is_pdr_sgn_valid) {
+      const payload = {
+        operations: [],
+        signatures: [],
+        procedure: unitProcedure[0].originFileObj,
+        prdSignature: signature[0].originFileObj,
+      };
+      for (let i = 0; i < operationFileList.length; i += 1) {
+        payload.operations.push(operationFileList[i].originFileObj);
+      }
+      for (let i = 0; i < signatureFileList.length; i += 1) {
+        payload.signatures.push(signatureFileList[i].originFileObj);
+      }
+      const formData = this.objectToFormData(payload);
+      this.apiFetchLoggedInUserDetails(formData);
+    } else if (operationFileList.length > signatureFileList.length) {
+      this.validateFiles(operationFileList, signatureFileList, '.sgn');
+    } else {
+      this.validateFiles(operationFileList, signatureFileList, '.opn');
+    }
+  }
+
+  validateSgnFiles(fileList, actionStatus) {
+    const { operationFileList } = this.state;
+    const arr = [];
+    for (let i = 0; i < fileList.length; i += 1) {
+      const fileName = fileList[i].name.split('.sgn');
+      const result = findLodash(operationFileList, { name: fileName[0] });
+      if (result) {
+        arr.push(fileList[i]);
+      } else {
+        alert('respective Signature file not found');
+      }
+    }
+    this.setState({
+      [actionStatus]: arr,
+    });
+  }
+
   validateInputSgnFile(fileList, actionStatus) {
     const { unitProcedure } = this.state;
     const fileName = fileList[0].name.split('.sgn');
@@ -116,7 +157,7 @@ class HomePage extends Component {
         [actionStatus]: fileList,
       });
     } else {
-      alert('respective operation file not found');
+      alert('respective Signature file not found');
     }
   }
 
@@ -137,67 +178,6 @@ class HomePage extends Component {
     this.setState({
       [actionFrom]: [],
     });
-  }
-
-  apiFetchLoggedInUserDetails = payload => {
-    axios
-      .post('https://localhost:8089/recipe/uploadfile', payload)
-      .then(response => {
-        console.log(response);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  };
-
-  validateFiles(_opns, _sgns, type) {
-    const opns = mapLodash(_opns, 'name');
-    const sgns = mapLodash(_sgns, 'name');
-    const opns1 = opns.map(item => item.split('.')[0]);
-    const sgns1 = sgns.map(item => item.split('.')[0]);
-    const result =
-      type === '.sgn'
-        ? withoutLodash(opns1, ...sgns1)
-        : withoutLodash(sgns1, ...opns1);
-    const result1 = result.map(item => item.concat(type));
-    alert(`${result1.join()} files missing`);
-  }
-
-  handleImport() {
-    const { operationFileList, signatureFileList, deviceName } = this.state;
-    const is_opn_sgn_valid =
-      operationFileList.length === signatureFileList.length;
-    if (is_opn_sgn_valid) {
-      // alert('validation success......');
-      const payload = {
-        // recipe_payload,
-        deviceName,
-        operations: [],
-        signatures: [],
-      };
-      //   payload.recipe_payload.recipe_name = deviceName;
-      for (let i = 0; i < operationFileList.length; i += 1) {
-        const data = {
-          fileName: operationFileList[i].name,
-          fileData: operationFileList[i].originFileObj,
-        };
-        payload.operations.push(data);
-      }
-      for (let i = 0; i < signatureFileList.length; i += 1) {
-        const data = {
-          fileName: signatureFileList[i].name,
-          fileData: signatureFileList[i].originFileObj,
-        };
-        payload.signatures.push(data);
-      }
-      const formData = this.objectToFormData({ payload });
-      console.log('here form data....', formData);
-      this.apiFetchLoggedInUserDetails(formData);
-    } else if (operationFileList.length > signatureFileList.length) {
-      this.validateFiles(operationFileList, signatureFileList, '.sgn');
-    } else {
-      this.validateFiles(operationFileList, signatureFileList, '.opn');
-    }
   }
 
   renderUploadItem(item) {
@@ -254,6 +234,12 @@ class HomePage extends Component {
   }
 
   renderModalContent() {
+    const inputPropsCommon = {
+      multiple: false,
+      showUploadList: false,
+      action: null,
+      beforeUpload: () => false,
+    };
     const bulkPropsCommon = {
       multiple: true,
       showUploadList: true,
@@ -263,13 +249,51 @@ class HomePage extends Component {
     const { unitProcedure, signature, deviceName } = this.state;
     return (
       <div>
-        <h2>Import Operations for {deviceName}</h2>
+        <h2>Import CCP Unit Procedure for {deviceName}</h2>
         <p>
-          You can import operations recipes written in recipe editor by
-          specifying the files. These files would be added to the central recipe
-          repository
+          You can import CCP operations recipes with respective to the procedure
+          and signature files selected which were written in recipe editor.These
+          files would be added to the central recipe repository
         </p>
+        <Row align="middle" type="flex" gutter={6} className="margin-tb">
+          <Col xs={24} sm={24} md={17} lg={17} xl={17}>
+            <Input
+              value={unitProcedure.length ? unitProcedure[0].name : ''}
+              allowClear
+              onChange={() => this.handleClear('unitProcedure')}
+            />
+          </Col>
+          <Col xs={24} sm={24} md={7} lg={7} xl={7} className="text-right">
+            {this.renderUpload(
+              'unitProcedure',
+              { ...inputPropsCommon, accept: '.pdr' },
+              {
+                title: 'Choose Unit Procedure',
+                buttonClass: 'blue-btn',
+              },
+            )}
+          </Col>
+        </Row>
 
+        <Row align="middle" type="flex" gutter={6} className="margin-tb">
+          <Col xs={24} sm={24} md={17} lg={17} xl={17}>
+            <Input
+              value={signature.length ? signature[0].name : ''}
+              allowClear
+              onChange={() => this.handleClear('signature')}
+            />
+          </Col>
+          <Col xs={24} sm={24} md={7} lg={7} xl={7} className="text-right">
+            {this.renderUpload(
+              'signature',
+              { ...inputPropsCommon, accept: '.sgn' },
+              {
+                title: 'Choose Signature File',
+                buttonClass: 'blue-btn',
+              },
+            )}
+          </Col>
+        </Row>
         <Row align="top" type="flex">
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Card
@@ -289,7 +313,7 @@ class HomePage extends Component {
           </Col>
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Card
-              title="Signature File"
+              title="Operation Signature File"
               extra={this.renderUpload('signatureFileList', {
                 ...bulkPropsCommon,
                 accept: '.sgn',
@@ -324,7 +348,7 @@ class HomePage extends Component {
     return (
       <div>
         <div>
-          {/* } <Button type="primary" onClick={this.handleModal}>
+          {/* <Button type="primary" onClick={this.handleModal}>
             Open Modal
           </Button> */}
           <List
@@ -368,4 +392,4 @@ function mapStateToProps(state) {
 export default connect(
   mapStateToProps,
   {},
-)(HomePage);
+)(Procedures);
