@@ -318,16 +318,20 @@ class HomePage extends Component {
     );
   }
 
+  renderNewModalContent() {
+    return <div>COmes here</div>;
+  }
+
   render() {
     const { showModal } = this.state;
     const data = ['TF2S', 'TF3S', 'XMO3', 'XMO12'];
     return (
       <div>
         <div>
-          {/* } <Button type="primary" onClick={this.handleModal}>
-            Open Modal
-          </Button> */}
-          <List
+          <Button type="default" onClick={() => this.handleModal()}>
+            Open Here
+          </Button>
+          {/* <List
             header={<div>Device List</div>}
             bordered
             className="customList"
@@ -343,7 +347,7 @@ class HomePage extends Component {
                 </Button>
               </List.Item>
             )}
-          />
+          /> */}
           <Modal
             title="Import Operations"
             visible={showModal}
@@ -353,7 +357,7 @@ class HomePage extends Component {
             className="upload-popup"
             width="750px"
           >
-            {this.renderModalContent()}
+            {this.renderNewModalContent()}
           </Modal>
         </div>
       </div>
