@@ -18,7 +18,7 @@ import {
   makeSelectLoading,
   makeSelectError,
 } from 'containers/App/selectors';
-import { Modal, Card, Upload, Button, Row, Input, Col, List } from 'antd';
+import { Modal, Card, Upload, Button, Row, Input, Col, List, Menu, Icon } from 'antd';
 import { find, map, pick, forEach, without } from 'lodash';
 import { loadRepos } from '../App/actions';
 import { changeUsername } from './actions';
@@ -29,6 +29,7 @@ import saga from './saga';
 const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
 const withoutLodash = (array, values) => without(array, values);
+const SubMenu = Menu.SubMenu;
 
 class HomePage extends Component {
   constructor(props) {
@@ -319,7 +320,44 @@ class HomePage extends Component {
   }
 
   renderNewModalContent() {
-    return <div>COmes here</div>;
+    return (
+      <div>
+        <Row align="top" type="flex" gutter={16}>
+          <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+            <Menu
+              mode="inline"
+              openKeys={this.state.openKeys}
+              onOpenChange={this.onOpenChange}
+              // style={{ width: 256 }}
+            >
+              <SubMenu key="sub1" title={<span>Navigation One</span>}>
+                <Menu.Item key="1">Option 1</Menu.Item>
+                <Menu.Item key="2">Option 2</Menu.Item>
+                <Menu.Item key="3">Option 3</Menu.Item>
+                <Menu.Item key="4">Option 4</Menu.Item>
+              </SubMenu>
+              <SubMenu key="sub2" title={<span>Navigation Two</span>}>
+                <Menu.Item key="5">Option 5</Menu.Item>
+                <Menu.Item key="6">Option 6</Menu.Item>
+                <SubMenu key="sub3" title="Submenu">
+                  <Menu.Item key="7">Option 7</Menu.Item>
+                  <Menu.Item key="8">Option 8</Menu.Item>
+                </SubMenu>
+              </SubMenu>
+              <SubMenu key="sub4" title={<span>Navigation Three</span>}>
+                <Menu.Item key="9">Option 9</Menu.Item>
+                <Menu.Item key="10">Option 10</Menu.Item>
+                <Menu.Item key="11">Option 11</Menu.Item>
+                <Menu.Item key="12">Option 12</Menu.Item>
+              </SubMenu>
+            </Menu>
+          </Col>
+          <Col xs={24} sm={24} md={18} lg={18} xl={18}>
+            SDASD SDAS
+          </Col>
+        </Row>
+      </div>
+    );
   }
 
   render() {
