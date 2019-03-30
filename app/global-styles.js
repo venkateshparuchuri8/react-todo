@@ -66,7 +66,14 @@ const GlobalStyle = createGlobalStyle`
       .ant-modal-footer{
         background:#e9e8ed;
       }
-      .ant-table-body{
+      .ant-table-fixed-header{
+        .ant-table-scroll{
+          .ant-table-header{
+          .ant-table-thead > tr > th{
+            background: #e9e8ec;
+          }
+        }
+        .ant-table-body{
         .ant-table-thead{
           tr{
             th{
@@ -90,6 +97,10 @@ const GlobalStyle = createGlobalStyle`
           }
         }
       }
+      }
+      }
+      
+      
     }
     .ant-upload-list{
     &.ant-upload-list-text{
