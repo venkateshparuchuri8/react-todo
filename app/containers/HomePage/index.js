@@ -86,6 +86,97 @@ const data = [
     age: 99,
     address: 'Sidney No. 1 Lake Park',
   },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  {
+    key: '4',
+    name: 'Disabled User',
+    age: 99,
+    address: 'Sidney No. 1 Lake Park',
+  },
+  
 ];
 
 class HomePage extends Component {
@@ -386,6 +477,7 @@ class HomePage extends Component {
               columns={columns}
               dataSource={data}
               pagination={false}
+              scroll={{ y: 240 }}
             />
           </TabPane>
           <TabPane tab="Operations" key="2">
@@ -395,7 +487,8 @@ class HomePage extends Component {
             Three
           </TabPane>
         </Tabs>
-          {/* <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+
+        {/* <Col xs={24} sm={24} md={6} lg={6} xl={6}>
             <Menu
               mode="inline"
             >
@@ -454,11 +547,15 @@ class HomePage extends Component {
           <Modal
             title="Import Operations"
             visible={showModal}
-            footer={null}
             onOk={this.handleModal}
             onCancel={this.handleModal}
             className="upload-popup background-gray"
             width="750px"
+            footer={[
+              <Button key="submit" type="primary">
+                Submit
+              </Button>,
+            ]}
           >
             {this.renderNewModalContent()}
           </Modal>

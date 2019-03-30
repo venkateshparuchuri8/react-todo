@@ -61,6 +61,10 @@ const GlobalStyle = createGlobalStyle`
       }
       .ant-modal-body{
         background:#e9e8ed;
+        padding-bottom:0px;
+      }
+      .ant-modal-footer{
+        background:#e9e8ed;
       }
       .ant-table-body{
         .ant-table-thead{
@@ -73,8 +77,8 @@ const GlobalStyle = createGlobalStyle`
         }
         .ant-table-tbody{
           .ant-table-row{
+            background:#fff;
             td{
-              background:#fff;
               border-bottom: 8px solid #e9e8ed;
               &:first-child{
                 border-radius:10px 0px 0px 10px;
