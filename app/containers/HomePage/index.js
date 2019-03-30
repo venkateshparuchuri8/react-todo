@@ -30,6 +30,7 @@ import {
   Menu,
   Icon,
   Table,
+  Tabs,
 } from 'antd';
 import { find, map, pick, forEach, without } from 'lodash';
 import { loadRepos } from '../App/actions';
@@ -41,6 +42,8 @@ import saga from './saga';
 const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
 const withoutLodash = (array, values) => without(array, values);
+const TabPane = Tabs.TabPane;
+const operations = <h1>Recipe Management</h1>;
 
 const { SubMenu } = Menu;
 const columns = [
@@ -376,13 +379,25 @@ class HomePage extends Component {
   renderNewModalContent() {
     return (
       <div>
-        <Row align="top" type="flex" gutter={16}>
-          <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+        <Tabs tabBarExtraContent={operations}>
+          <TabPane tab="Unit Procedures" key="1">
+            <Table
+              // rowSelection={rowSelection}
+              columns={columns}
+              dataSource={data}
+              pagination={false}
+            />
+          </TabPane>
+          <TabPane tab="Operations" key="2">
+            Two
+          </TabPane>
+          <TabPane tab="Phases" key="3">
+            Three
+          </TabPane>
+        </Tabs>
+          {/* <Col xs={24} sm={24} md={6} lg={6} xl={6}>
             <Menu
               mode="inline"
-              // openKeys={this.state.openKeys}
-              // onOpenChange={this.onOpenChange}
-              // style={{ width: 256 }}
             >
               <SubMenu key="sub1" title={<span>Navigation One</span>}>
                 <Menu.Item key="1">Option 1</Menu.Item>
@@ -405,17 +420,7 @@ class HomePage extends Component {
                 <Menu.Item key="12">Option 12</Menu.Item>
               </SubMenu>
             </Menu>
-          </Col>
-          <Col xs={24} sm={24} md={18} lg={18} xl={18}>
-            <Table
-              // rowSelection={rowSelection}
-              columns={columns}
-              dataSource={data}
-              pagination={false}
-            />
-            ,
-          </Col>
-        </Row>
+          </Col> */}
       </div>
     );
   }
@@ -452,7 +457,7 @@ class HomePage extends Component {
             footer={null}
             onOk={this.handleModal}
             onCancel={this.handleModal}
-            className="upload-popup"
+            className="upload-popup background-gray"
             width="750px"
           >
             {this.renderNewModalContent()}

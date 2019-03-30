@@ -29,7 +29,64 @@ const GlobalStyle = createGlobalStyle`
 
   
   .upload-popup{
-
+    &.background-gray{
+      .ant-tabs{
+        .ant-tabs-bar{
+          padding-bottom:15px;
+          border-bottom: 1px solid #ccc;
+        }
+        .ant-tabs-extra-content{
+          float:left !important;
+          h1{
+            font-size:20px;
+          }
+        }
+        .ant-tabs-nav-scroll{
+          float:right;
+          .ant-tabs-nav{
+            .ant-tabs-ink-bar{
+              background-color:#a4a3ab;
+            }
+            .ant-tabs-tab{
+              font-size:12px;
+              margin:0px;
+              padding:12px;
+              &.ant-tabs-tab-active{
+              color:#a4a3ab;
+              font-weight:bold;
+            }
+            }
+          }
+        }
+      }
+      .ant-modal-body{
+        background:#e9e8ed;
+      }
+      .ant-table-body{
+        .ant-table-thead{
+          tr{
+            th{
+              background:transparent;
+              border-bottom:0px;
+            }
+          }
+        }
+        .ant-table-tbody{
+          .ant-table-row{
+            td{
+              background:#fff;
+              border-bottom: 8px solid #e9e8ed;
+              &:first-child{
+                border-radius:10px 0px 0px 10px;
+              }
+              &:last-child{
+                border-radius:0px 10px 10px 0px;
+              }
+            }
+          }
+        }
+      }
+    }
     .ant-upload-list{
     &.ant-upload-list-text{
       position: absolute;
