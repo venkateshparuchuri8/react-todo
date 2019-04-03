@@ -52,14 +52,17 @@ class DeviceManagement extends Component {
   }
 
   triggerImport() {
-    const { selectedRows } = this.state;
-    const selectedReciepes = selectedRows;
-    const payload = [];
-    console.log('here selected receipes...', selectedReciepes);
-    for (let i = 0; i < selectedReciepes.length; i += 1) {
-      const { id, deviceId, author } = selectedReciepes[i];
-      payload.push({ id, deviceId, author });
-    }
+    const data = this.selectedRows;
+    const { id, deviceId, author } = data[0];
+    // const { selectedRows } = this.state;
+    // const selectedReciepes = selectedRows;
+    // const payload = [];
+    // console.log('here selected receipes...', selectedReciepes);
+    // for (let i = 0; i < selectedReciepes.length; i += 1) {
+    //   const { id, deviceId, author } = selectedReciepes[i];
+    //   payload.push({ id, deviceId, author });
+    // }
+    const payload = { id, deviceId, author };
     const url = 'http://localhost:8087/recipedispatcherapi/dispatch';
     axios
       .post(url, payload)
@@ -129,11 +132,13 @@ class DeviceManagement extends Component {
       activeKey: '1',
       selectedRowKeys: [],
     });
+    this.selectedRows = [];
   }
 
   handleTabCallback(key) {
     const { selectedDevice, deviceType } = this.state;
-    this.setState({ activeKey: key });
+    this.selectedRows = [];
+    this.setState({ activeKey: key, selectedRowKeys: [] });
     switch (key) {
       case '1':
         return this.getReceipes(selectedDevice, deviceType, 'pdr');
@@ -155,8 +160,11 @@ class DeviceManagement extends Component {
     return date;
   }
 
-  onSelectChange = selectedRowKeys => {
-    this.setState({ selectedRowKeys });
+  onSelectChange = (selectedRowKeys, selectedRows) => {
+    const data = selectedRowKeys.slice(-1);
+    const data1 = selectedRows.slice(-1);
+    this.setState({ selectedRowKeys: data });
+    this.selectedRows = data1;
   };
 
   renderNewModalContent() {
@@ -166,7 +174,44 @@ class DeviceManagement extends Component {
       onChange: this.onSelectChange,
     };
 
-    const Columns = [
+    const UPColumns = [
+      {
+        title: 'Procedures',
+        dataIndex: 'name',
+        key: 'name',
+        width: 400,
+      },
+      {
+        title: 'Device Name',
+        dataIndex: 'deviceUoP',
+        key: 'deviceUoP',
+        width: 150,
+      },
+      {
+        title: 'Device Type',
+        dataIndex: 'deviceType',
+        key: 'deviceType',
+        width: 150,
+      },
+      {
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        width: 100,
+      },
+      {
+        title: 'Modified',
+        key: 'author',
+        render: record => (
+          <div>
+            <span>{record.author}</span>
+            <br />
+            <span>{this.convertDate(record.modifiedDate)}</span>
+          </div>
+        ),
+      },
+    ];
+    const OPColumns = [
       {
         title: 'Operations',
         dataIndex: 'name',
@@ -212,7 +257,7 @@ class DeviceManagement extends Component {
         >
           <TabPane tab="Unit Procedures" key="1">
             <Table
-              columns={Columns}
+              columns={UPColumns}
               rowKey="id"
               dataSource={opnList}
               pagination={false}
@@ -222,7 +267,7 @@ class DeviceManagement extends Component {
           </TabPane>
           <TabPane tab="Operations" key="2">
             <Table
-              columns={Columns}
+              columns={OPColumns}
               rowKey="id"
               dataSource={sgnList}
               pagination={false}

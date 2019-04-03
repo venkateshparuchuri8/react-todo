@@ -99,7 +99,9 @@ const GlobalStyle = createGlobalStyle`
       }
       }
       }
-      
+      .ant-table-selection {
+      visibility: hidden;
+    }
       
     }
     .ant-upload-list{
