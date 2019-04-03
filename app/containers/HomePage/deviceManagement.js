@@ -14,6 +14,7 @@ import {
   Menu,
   Table,
   Tabs,
+  Icon,
 } from 'antd';
 
 import { find, map, pick, forEach, without } from 'lodash';
@@ -22,45 +23,9 @@ const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
 const withoutLodash = (array, values) => without(array, values);
 const { TabPane } = Tabs;
-const operations = <h1>Recipe Management</h1>;
+const operations = <h1>Recipe Dispatch</h1>;
 
-const Columns = [
-  {
-    title: 'Operations',
-    dataIndex: 'name',
-    key: 'name',
-    width: 250,
-  },
-  {
-    title: 'Device Name',
-    dataIndex: 'deviceUoP',
-    key: 'deviceUoP',
-    width: 150,
-  },
-  {
-    title: 'Device Type',
-    dataIndex: 'deviceUoPVersion',
-    key: 'deviceUoPVersion',
-    width: 150,
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    width: 150,
-  },
-  {
-    title: 'Modified',
-    key: 'author',
-    render: record => (
-      <div>
-        <span>{record.author}</span>, <span>{record.modifiedDate}</span>
-      </div>
-    ),
-  },
-];
-
-class HomePage extends Component {
+class DeviceManagement extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -69,163 +34,189 @@ class HomePage extends Component {
       opnList: [],
       sgnList: [],
       selectedDevice: '',
+      deviceType: '',
+      activeKey: '1',
+      selectedRowKeys: [],
     };
+    this.selectedRows = [];
     this.handleModal = this.handleModal.bind(this);
     this.getReceipes = this.getReceipes.bind(this);
     this.getDeviceData = this.getDeviceData.bind(this);
+    this.handleTabCallback = this.handleTabCallback.bind(this);
+    this.triggerImport = this.triggerImport.bind(this);
+    this.onSelectChange = this.onSelectChange.bind(this);
   }
 
   componentWillMount() {
     this.getDeviceList();
   }
 
-  getDeviceData(deviceName) {
+  triggerImport() {
+    const { selectedRows } = this.state;
+    const selectedReciepes = selectedRows;
+    const payload = [];
+    console.log('here selected receipes...', selectedReciepes);
+    for (let i = 0; i < selectedReciepes.length; i += 1) {
+      const { id, deviceId, author } = selectedReciepes[i];
+      payload.push({ id, deviceId, author });
+    }
+    const url = 'http://localhost:8087/recipedispatcherapi/dispatch';
+    axios
+      .post(url, payload)
+      .then(response => {
+        console.log(response);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
+  getDeviceData(deviceName, deviceType) {
     this.setState({
       showModal: true,
       selectedDevice: deviceName,
+      deviceType,
     });
-    this.getReceipes(deviceName, 'opn');
+    this.getReceipes(deviceName, deviceType, 'pdr');
   }
 
-  getReceipes(deviceName, type) {
-    const mocData = [
-      {
-        id: 563,
-        name: 'Demo_1553284531600.opn',
-        status: 'Draft',
-        version: 'V1',
-        author: 'merckservice',
-        modifiedDate: 1576134122000,
-        recipe: 'smart',
-        deviceId: '3003',
-        deviceUoPVersion: 'CCP04',
-        deviceUoP: 'CCP',
-        deviceSubFamily: 'Smart XMO',
-        deviceFamily: 'smart',
-        ccprecipelocation: 'Demo_1553284531600.opn',
-        ccpProcedureId: '561',
-      },
-      {
-        id: 564,
-        name: 'Demo1_1553284531600.opn',
-        status: 'Draft',
-        version: 'V1',
-        author: 'merckservice',
-        modifiedDate: 1576134122000,
-        recipe: 'smart',
-        deviceId: '3003',
-        deviceUoPVersion: 'CCP04',
-        deviceUoP: 'CCP',
-        deviceSubFamily: 'Smart XMO',
-        deviceFamily: 'smart',
-        ccprecipelocation: 'Demo1_1553284531600.opn',
-        ccpProcedureId: '561',
-      },
-    ];
-    this.setState({
-      opnList: mocData,
-      sgnList: mocData,
-    });
-    // const url = `https://localhost:8091/recipe/fetchByDevice/${deviceName}/receipetype/${type}`;
-    // axios
-    //   .get(url)
-    //   .then(response => {
-    //     console.log(response);
-    //     if (type === 'opn') {
-    //       this.setState({ opnList: response.data });
-    //     } elseif (type === 'sgn) {
-    //       this.setState({ sgnList: response.data });
-    //     }
-    //   })
-    //   .catch(error => {
-    //     console.log(error);
-    //   });
+  constructPayload(payload, type) {
+    const dataArr = [];
+    for (let i = 0; i < payload.length; i += 1) {
+      const tempObj = payload[i];
+      tempObj.deviceType = type;
+      dataArr.push(tempObj);
+    }
+    return dataArr;
+  }
+
+  getReceipes(deviceName, deviceType, type) {
+    const url = `https://localhost:8091/recipe/fetchByDevice/${deviceName}/receipetype/${type}`;
+    axios
+      .get(url)
+      .then(response => {
+        console.log(response);
+        if (type === 'pdr') {
+          const data = this.constructPayload(response.data, deviceType);
+          this.setState({ opnList: data });
+        } else if (type === 'opn') {
+          const data = this.constructPayload(response.data, deviceType);
+          this.setState({ sgnList: data });
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   getDeviceList() {
-    const mocData = [
-      {
-        id: 82,
-        deviceID: '3003',
-        ip: '10.2.235.607',
-        version: 0,
-        location: 'US',
-        configuration: '{}',
-        device_type: 'Chromatography',
-        onboard: 'true',
-        port: 8089,
-        device_name: 'CCP',
-      },
-      {
-        id: 84,
-        deviceID: '3004',
-        ip: '10.2.235.608',
-        version: 0,
-        location: 'US',
-        configuration: '{}',
-        device_type: 'TFF',
-        onboard: 'true',
-        port: 8089,
-        device_name: 'CCP1',
-      },
-    ];
-    this.setState({ deviceList: mocData });
-    // const url = 'https://localhost:8089/api/discoverdDevices/';
-    // axios
-    //   .get(url)
-    //     .then(response => {
-    //     console.log(response);
-    //     this.setState({ deviceList: response.data});
-    //     })
-    //     .catch(error => {
-    //       console.log(error);
-    //     });
+    const url = 'https://localhost:8089/api/discoverdDevices/';
+    axios
+      .get(url)
+      .then(response => {
+        console.log(response);
+        this.setState({ deviceList: response.data });
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   handleModal() {
     const { showModal } = this.state;
-    this.setState({ showModal: !showModal });
+    this.setState({
+      showModal: !showModal,
+      activeKey: '1',
+      selectedRowKeys: [],
+    });
   }
 
   handleTabCallback(key) {
-    const { selectedDevice } = this.state;
+    const { selectedDevice, deviceType } = this.state;
+    this.setState({ activeKey: key });
     switch (key) {
       case '1':
-        return this.getReceipes(selectedDevice, 'opn');
+        return this.getReceipes(selectedDevice, deviceType, 'pdr');
       case '2':
-        return this.getReceipes(selectedDevice, 'sgn');
+        return this.getReceipes(selectedDevice, deviceType, 'opn');
 
       default:
-        return this.getReceipes(selectedDevice, 'opn');
+        return this.getReceipes(selectedDevice, deviceType, 'pdr');
     }
   }
 
+  convertDate(timeStamp) {
+    const d = new Date(timeStamp);
+    const currentHours = `0${d.getHours()}`.slice(-2);
+    const currentMinutes = `0${d.getMinutes()}`.slice(-2);
+    const date = `${d.getFullYear()}/${d.getMonth() +
+      1}/${d.getDate()} ${currentHours}:${currentMinutes}`;
+    console.log('here date comes.....', date);
+    return date;
+  }
+
+  onSelectChange = selectedRowKeys => {
+    this.setState({ selectedRowKeys });
+  };
+
   renderNewModalContent() {
-    const { opnList, sgnList } = this.state;
+    const { opnList, sgnList, activeKey, selectedRowKeys } = this.state;
     const rowSelection = {
-      onChange: (selectedRowKeys, selectedRows) => {
-        console.log(
-          `selectedRowKeys: ${selectedRowKeys}`,
-          'selectedRows: ',
-          selectedRows,
-        );
-      },
-      getCheckboxProps: record => ({
-        disabled: record.name === 'Disabled User', // Column configuration not to be checked
-        name: record.name,
-      }),
+      selectedRowKeys,
+      onChange: this.onSelectChange,
     };
 
+    const Columns = [
+      {
+        title: 'Operations',
+        dataIndex: 'name',
+        key: 'name',
+        width: 400,
+      },
+      {
+        title: 'Device Name',
+        dataIndex: 'deviceUoP',
+        key: 'deviceUoP',
+        width: 150,
+      },
+      {
+        title: 'Device Type',
+        dataIndex: 'deviceType',
+        key: 'deviceType',
+        width: 150,
+      },
+      {
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        width: 100,
+      },
+      {
+        title: 'Modified',
+        key: 'author',
+        render: record => (
+          <div>
+            <span>{record.author}</span>
+            <br />
+            <span>{this.convertDate(record.modifiedDate)}</span>
+          </div>
+        ),
+      },
+    ];
     return (
       <div>
-        <Tabs tabBarExtraContent={operations} onChange={this.handleTabCallback}>
+        <Tabs
+          tabBarExtraContent={operations}
+          onChange={this.handleTabCallback}
+          activeKey={activeKey}
+        >
           <TabPane tab="Unit Procedures" key="1">
             <Table
               columns={Columns}
               rowKey="id"
               dataSource={opnList}
               pagination={false}
-              scroll={{ y: 240 }}
+              scroll={{ y: 340 }}
               rowSelection={rowSelection}
             />
           </TabPane>
@@ -235,14 +226,43 @@ class HomePage extends Component {
               rowKey="id"
               dataSource={sgnList}
               pagination={false}
-              scroll={{ y: 240 }}
+              scroll={{ y: 340 }}
               rowSelection={rowSelection}
             />
           </TabPane>
-          <TabPane tab="Phases" key="3">
+          {/* <TabPane tab="Phases" key="3">
             Phases data comes here
-          </TabPane>
+          </TabPane> */}
         </Tabs>
+      </div>
+    );
+  }
+
+  renderDeviceHeader(title, deviceType) {
+    return (
+      <div>
+        {/* <Icon
+          type="android"
+          size={100}
+          style={{
+            position: 'absolute',
+            top: '13px',
+            left: '2px',
+            fontSize: '29px',
+          }}
+        /> */}
+        {title}
+        <Icon
+          type="ellipsis"
+          onClick={() => this.getDeviceData(title, deviceType, 'opn')}
+          style={{
+            position: 'absolute',
+            top: '13px',
+            right: '10px',
+            fontSize: '20px',
+            cursor: 'pointer',
+          }}
+        />
       </div>
     );
   }
@@ -251,11 +271,28 @@ class HomePage extends Component {
     const { showModal, deviceList } = this.state;
     return (
       <div>
-        <div>
-          {/* <Button type="default" onClick={() => this.handleModal()}>
+        <Modal
+          title="Import Operations"
+          visible={showModal}
+          onOk={this.handleModal}
+          onCancel={this.handleModal}
+          className="upload-popup background-gray"
+          width="1200px"
+          footer={[
+            <Button key="cancel" type="default" onClick={this.handleModal}>
+              Cancel
+            </Button>,
+            <Button key="submit" type="primary" onClick={this.triggerImport}>
+              Dispatch
+            </Button>,
+          ]}
+        >
+          {this.renderNewModalContent()}
+        </Modal>
+        {/* <Button type="default" onClick={() => this.handleModal()}>
             Open Here
           </Button> */}
-          <List
+        {/* <List
             header={<div>Device List</div>}
             bordered
             className="customList"
@@ -271,25 +308,52 @@ class HomePage extends Component {
                 </Button>
               </List.Item>
             )}
-          />
-          <Modal
-            title="Import Operations"
-            visible={showModal}
-            onOk={this.handleModal}
-            onCancel={this.handleModal}
-            className="upload-popup background-gray"
-            width="1200px"
-            footer={[
-              <Button key="cancel" type="default" onClick={this.handleModal}>
-                Cancel
-              </Button>,
-              <Button key="submit" type="primary">
-                Import
-              </Button>,
-            ]}
-          >
-            {this.renderNewModalContent()}
-          </Modal>
+          /> */}
+        <div
+          style={{
+            background: '#ECECEC',
+            padding: '30px',
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            height: '100vh',
+            width: '100%',
+          }}
+        >
+          <Row gutter={16}>
+            <Card
+              title="Device List"
+              style={{
+                background: '#ECECEC',
+              }}
+            >
+              {deviceList.length &&
+                deviceList.map(item => (
+                  <Col span={6} style={{ marginBottom: '20px' }} key={item.id}>
+                    <Card
+                      title={this.renderDeviceHeader(
+                        item.device_name,
+                        item.device_type,
+                      )}
+                      bordered={false}
+                      style={{
+                        height: '220px',
+                        width: '250px',
+                      }}
+                    >
+                      {/* <Button
+                        type="default"
+                        onClick={() =>
+                          this.getDeviceData(item.device_name, 'opn')
+                        }
+                      >
+                        Get Receipes
+                      </Button> */}
+                    </Card>
+                  </Col>
+                ))}
+            </Card>
+          </Row>
         </div>
       </div>
     );
@@ -303,4 +367,4 @@ function mapStateToProps(state) {
 export default connect(
   mapStateToProps,
   {},
-)(HomePage);
+)(DeviceManagement);
