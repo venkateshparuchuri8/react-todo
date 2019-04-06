@@ -102,6 +102,10 @@ const GlobalStyle = createGlobalStyle`
       .ant-table-selection {
       visibility: hidden;
     }
+    .ant-checkbox-inner {
+          border-radius: 50px;
+    outline: none;
+    }
       
     }
     .ant-upload-list{

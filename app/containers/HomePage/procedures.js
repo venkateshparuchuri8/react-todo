@@ -34,17 +34,29 @@ export class Procedures extends Component {
     this.setState({ showModal: !showModal });
   }
 
+  success(message) {
+    Modal.success({
+      title: message,
+    });
+  }
+
+  error(message) {
+    Modal.error({
+      title: message,
+    });
+  }
+
   apiFetchLoggedInUserDetails = payload => {
     const { deviceName } = this.state;
-    const staticData = 'https://localhost:8089/recipe/uploadMultipleFiles';
+    const staticData = 'https://localhost:8091/recipe/uploadMultipleFiles';
     const url = `${staticData}/${deviceName}`;
     axios
       .post(url, payload)
       .then(response => {
-        console.log(response);
+        this.success('Success');
       })
       .catch(error => {
-        console.log(error);
+        this.error('Failure');
       });
   };
 
@@ -109,7 +121,12 @@ export class Procedures extends Component {
     const is_opn_sgn_valid =
       operationFileList.length === signatureFileList.length;
     const is_pdr_sgn_valid = unitProcedure.length === signature.length;
-    if (is_opn_sgn_valid && is_pdr_sgn_valid) {
+    if (
+      is_opn_sgn_valid &&
+      is_pdr_sgn_valid &&
+      operationFileList.length &&
+      unitProcedure.length
+    ) {
       const payload = {
         operations: [],
         signatures: [],
@@ -344,7 +361,7 @@ export class Procedures extends Component {
 
   render() {
     const { showModal } = this.state;
-    const data = ['TF2S', 'TF3S', 'XMO3', 'XMO12'];
+    const data = ['CCP', 'CCP1', 'CCP2', 'CCP3'];
     return (
       <div>
         <div>

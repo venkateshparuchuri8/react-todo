@@ -51,27 +51,45 @@ class DeviceManagement extends Component {
     this.getDeviceList();
   }
 
+  success(message) {
+    Modal.success({
+      title: message,
+    });
+  }
+
+  error(message) {
+    Modal.error({
+      title: message,
+    });
+  }
+
   triggerImport() {
     const data = this.selectedRows;
-    const { id, deviceId, author } = data[0];
-    // const { selectedRows } = this.state;
-    // const selectedReciepes = selectedRows;
-    // const payload = [];
-    // console.log('here selected receipes...', selectedReciepes);
-    // for (let i = 0; i < selectedReciepes.length; i += 1) {
-    //   const { id, deviceId, author } = selectedReciepes[i];
-    //   payload.push({ id, deviceId, author });
-    // }
-    const payload = { id, deviceId, author };
-    const url = 'http://localhost:8087/recipedispatcherapi/dispatch';
-    axios
-      .post(url, payload)
-      .then(response => {
-        console.log(response);
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    if (data.length) {
+      const { id, deviceId, author } = data[0];
+      // const { selectedRows } = this.state;
+      // const selectedReciepes = selectedRows;
+      // const payload = [];
+      // console.log('here selected receipes...', selectedReciepes);
+      // for (let i = 0; i < selectedReciepes.length; i += 1) {
+      //   const { id, deviceId, author } = selectedReciepes[i];
+      //   payload.push({ id, deviceId, author });
+      // }
+      const payload = { id, deviceId, author };
+      const url = 'http://localhost:8087/recipedispatcherapi/dispatch';
+      axios
+        .post(url, payload)
+        .then(response => {
+          console.log(response);
+          this.success(response.description);
+        })
+        .catch(error => {
+          console.log(error);
+          this.error(error.description);
+        });
+    } else {
+      this.error('please select receipe to proceed further');
+    }
   }
 
   getDeviceData(deviceName, deviceType) {

@@ -37,7 +37,6 @@ class HomePage extends Component {
       activeKey: '1',
       selectedRowKeys: [],
     };
-    this.selectedRows = [];
     this.handleModal = this.handleModal.bind(this);
     this.getReceipes = this.getReceipes.bind(this);
     this.getDeviceData = this.getDeviceData.bind(this);
@@ -77,38 +76,6 @@ class HomePage extends Component {
       },
       {
         id: 564,
-        name: 'Demo1_1553284531600.opn',
-        status: 'Draft',
-        version: 'V1',
-        author: 'merckservice',
-        modifiedDate: 1676134122055,
-        recipe: 'smart',
-        deviceId: '3003',
-        deviceUoPVersion: 'CCP04',
-        deviceUoP: 'CCP',
-        deviceSubFamily: 'Smart XMO',
-        deviceFamily: 'smart',
-        ccprecipelocation: 'Demo1_1553284531600.opn',
-        ccpProcedureId: '561',
-      },
-      {
-        id: 565,
-        name: 'Demo_1553284531600.opn',
-        status: 'Draft',
-        version: 'V1',
-        author: 'merckservice',
-        modifiedDate: 1576134122000,
-        recipe: 'smart',
-        deviceId: '3003',
-        deviceUoPVersion: 'CCP04',
-        deviceUoP: 'CCP',
-        deviceSubFamily: 'Smart XMO',
-        deviceFamily: 'smart',
-        ccprecipelocation: 'Demo_1553284531600.opn',
-        ccpProcedureId: '561',
-      },
-      {
-        id: 566,
         name: 'Demo1_1553284531600.opn',
         status: 'Draft',
         version: 'V1',
@@ -243,8 +210,7 @@ class HomePage extends Component {
 
   handleTabCallback(key) {
     const { selectedDevice } = this.state;
-    this.setState({ activeKey: key, selectedRowKeys: [] });
-    this.selectedRows = [];
+    this.setState({ activeKey: key });
     switch (key) {
       case '1':
         return this.getReceipes(selectedDevice, 'opn');
@@ -263,11 +229,8 @@ class HomePage extends Component {
       1}/${d.getDate()} ${d.getHours()}:${d.getMinutes()}`;
   }
 
-  onSelectChange = (selectedRowKeys, selectedRows) => {
-    const data = selectedRowKeys.slice(-1);
-    const data1 = selectedRows.slice(-1);
-    this.setState({ selectedRowKeys: data });
-    this.selectedRows = data1;
+  onSelectChange = selectedRowKeys => {
+    this.setState({ selectedRowKeys });
   };
 
   renderNewModalContent() {
@@ -328,8 +291,6 @@ class HomePage extends Component {
               pagination={false}
               scroll={{ y: 240 }}
               rowSelection={rowSelection}
-              filterMultiple={false}
-              className="js-customtable"
             />
           </TabPane>
           <TabPane tab="Operations" key="2">
@@ -340,7 +301,6 @@ class HomePage extends Component {
               pagination={false}
               scroll={{ y: 240 }}
               rowSelection={rowSelection}
-              filterMultiple={false}
             />
           </TabPane>
           <TabPane tab="Phases" key="3">

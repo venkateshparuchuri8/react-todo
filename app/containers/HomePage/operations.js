@@ -49,21 +49,29 @@ export class Operations extends Component {
     this.setState({ deviceName, showModal: true });
   }
 
-  validateSgnFiles(fileList, actionStatus) {
-    const { operationFileList } = this.state;
-    const arr = [];
-    for (let i = 0; i < fileList.length; i += 1) {
-      const fileName = fileList[i].name.split('.sgn');
-      const result = findLodash(operationFileList, { name: fileName[0] });
-      if (result) {
-        arr.push(fileList[i]);
-      } else {
-        alert('respective Signature file not found');
+  validateSgnFiles(fileList, file, actionStatus) {
+    const { operationFileList, signatureFileList } = this.state;
+    const namesList = signatureFileList.map(item => item.name);
+    if (namesList.indexOf(file.name) === -1) {
+      const arr = [];
+      for (let i = 0; i < fileList.length; i += 1) {
+        const fileName = fileList[i].name.split('.sgn');
+        const result = findLodash(operationFileList, { name: fileName[0] });
+        if (result) {
+          arr.push(fileList[i]);
+        } else {
+          alert('respective Operation file not found');
+        }
       }
+      this.setState({
+        [actionStatus]: arr,
+      });
+    } else {
+      const index = namesList.indexOf(file.name);
+      const result = findLodash(fileList, { uid: file.uid });
+      signatureFileList[index] = result;
+      this.setState({ signatureFileList });
     }
-    this.setState({
-      [actionStatus]: arr,
-    });
   }
 
   objectToFormData = (obj, form, namespace) => {
@@ -113,15 +121,35 @@ export class Operations extends Component {
     }
   }
 
-  handleFileUpload(actionFrom, { fileList }) {
-    if (actionFrom === 'signatureFileList') {
-      this.validateSgnFiles(fileList, actionFrom);
-    } else if (actionFrom === 'signature') {
-      this.validateInputSgnFile(fileList, actionFrom);
-    } else {
+  validateDuplicateFile(fileList, file, actionFrom) {
+    const { operationFileList } = this.state;
+    const namesList = operationFileList.map(item => item.name);
+    const fileName = file.name;
+    if (operationFileList.length > fileList.length) {
       this.setState({
         [actionFrom]: fileList,
       });
+    } else if (namesList.indexOf(fileName) === -1) {
+      this.setState({
+        [actionFrom]: fileList,
+      });
+    } else {
+      const index = namesList.indexOf(fileName);
+      const result = findLodash(fileList, { uid: file.uid });
+      operationFileList[index] = result;
+      this.setState({
+        [actionFrom]: operationFileList,
+      });
+    }
+  }
+
+  handleFileUpload(actionFrom, { fileList, file }) {
+    if (actionFrom === 'signatureFileList') {
+      this.validateSgnFiles(fileList, file, actionFrom);
+    } else if (actionFrom === 'signature') {
+      this.validateInputSgnFile(fileList, actionFrom);
+    } else {
+      this.validateDuplicateFile(fileList, file, actionFrom);
     }
   }
 
