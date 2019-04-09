@@ -31,7 +31,13 @@ export class Procedures extends Component {
 
   handleModal() {
     const { showModal } = this.state;
-    this.setState({ showModal: !showModal });
+    this.setState({
+      showModal: !showModal,
+      operationFileList: [],
+      signatureFileList: [],
+      unitProcedure: [],
+      signature: [],
+    });
   }
 
   success(message) {
@@ -108,7 +114,8 @@ export class Procedures extends Component {
         ? withoutLodash(opns1, ...sgns1)
         : withoutLodash(sgns1, ...opns1);
     const result1 = result.map(item => item.concat(type));
-    alert(`Please upload ${result1.join()} to proceed further`);
+    // alert(`Please upload ${result1.join()} to proceed further`);
+    this.error(`Please upload ${result1.join()} to proceed further`);
   }
 
   handleImport() {
@@ -121,48 +128,76 @@ export class Procedures extends Component {
     const is_opn_sgn_valid =
       operationFileList.length === signatureFileList.length;
     const is_pdr_sgn_valid = unitProcedure.length === signature.length;
-    if (
-      is_opn_sgn_valid &&
-      is_pdr_sgn_valid &&
-      operationFileList.length &&
-      unitProcedure.length
-    ) {
-      const payload = {
-        operations: [],
-        signatures: [],
-        procedure: unitProcedure[0].originFileObj,
-        prdSignature: signature[0].originFileObj,
-      };
-      for (let i = 0; i < operationFileList.length; i += 1) {
-        payload.operations.push(operationFileList[i].originFileObj);
+    if (unitProcedure.length) {
+      if (signature.length) {
+        if (operationFileList.length) {
+          if (signatureFileList.length) {
+            if (
+              is_opn_sgn_valid &&
+              is_pdr_sgn_valid &&
+              operationFileList.length &&
+              unitProcedure.length
+            ) {
+              const payload = {
+                operations: [],
+                signatures: [],
+                procedure: unitProcedure[0].originFileObj,
+                prdSignature: signature[0].originFileObj,
+              };
+              for (let i = 0; i < operationFileList.length; i += 1) {
+                payload.operations.push(operationFileList[i].originFileObj);
+              }
+              for (let i = 0; i < signatureFileList.length; i += 1) {
+                payload.signatures.push(signatureFileList[i].originFileObj);
+              }
+              const formData = this.objectToFormData(payload);
+              this.apiFetchLoggedInUserDetails(formData);
+            } else if (operationFileList.length > signatureFileList.length) {
+              this.validateFiles(operationFileList, signatureFileList, '.sgn');
+            } else {
+              this.validateFiles(operationFileList, signatureFileList, '.opn');
+            }
+          } else {
+            this.error('Upload Signature files to proceed further');
+          }
+        } else {
+          this.error('Upload Operation files to proceed further');
+        }
+      } else {
+        this.error('Upload signature file to proceed further');
       }
-      for (let i = 0; i < signatureFileList.length; i += 1) {
-        payload.signatures.push(signatureFileList[i].originFileObj);
-      }
-      const formData = this.objectToFormData(payload);
-      this.apiFetchLoggedInUserDetails(formData);
-    } else if (operationFileList.length > signatureFileList.length) {
-      this.validateFiles(operationFileList, signatureFileList, '.sgn');
     } else {
-      this.validateFiles(operationFileList, signatureFileList, '.opn');
+      this.error('Upload unit procedure file to proceed further');
     }
   }
 
-  validateSgnFiles(fileList, actionStatus) {
-    const { operationFileList } = this.state;
-    const arr = [];
-    for (let i = 0; i < fileList.length; i += 1) {
-      const fileName = fileList[i].name.split('.sgn');
-      const result = findLodash(operationFileList, { name: fileName[0] });
-      if (result) {
-        arr.push(fileList[i]);
-      } else {
-        alert('respective Signature file not found');
+  validateSgnFiles(fileList, file, actionStatus) {
+    const { operationFileList, signatureFileList } = this.state;
+    const namesList = signatureFileList.map(item => item.name);
+    if (signatureFileList.length > fileList.length) {
+      this.setState({
+        [actionStatus]: fileList,
+      });
+    } else if (namesList.indexOf(file.name) === -1) {
+      const arr = [];
+      for (let i = 0; i < fileList.length; i += 1) {
+        const fileName = fileList[i].name.split('.sgn');
+        const result = findLodash(operationFileList, { name: fileName[0] });
+        if (result) {
+          arr.push(fileList[i]);
+        } else {
+          this.error('respective operation file not found');
+        }
       }
+      this.setState({
+        [actionStatus]: arr,
+      });
+    } else {
+      const index = namesList.indexOf(file.name);
+      const result = findLodash(fileList, { uid: file.uid });
+      signatureFileList[index] = result;
+      this.setState({ signatureFileList });
     }
-    this.setState({
-      [actionStatus]: arr,
-    });
   }
 
   validateInputSgnFile(fileList, actionStatus) {
@@ -174,24 +209,47 @@ export class Procedures extends Component {
         [actionStatus]: fileList,
       });
     } else {
-      alert('respective Signature file not found');
+      this.error('respective Signature file not found');
     }
   }
 
-  handleFileUpload(actionFrom, { fileList }) {
-    if (actionFrom === 'signatureFileList') {
-      this.validateSgnFiles(fileList, actionFrom);
-    } else if (actionFrom === 'signature') {
-      this.validateInputSgnFile(fileList, actionFrom);
-    } else {
+  validateDuplicateFile(fileList, file, actionFrom) {
+    const { operationFileList } = this.state;
+    const namesList = operationFileList.map(item => item.name);
+    const fileName = file.name;
+    if (operationFileList.length > fileList.length) {
       this.setState({
         [actionFrom]: fileList,
+      });
+    } else if (namesList.indexOf(fileName) === -1) {
+      this.setState({
+        [actionFrom]: fileList,
+      });
+    } else {
+      const index = namesList.indexOf(fileName);
+      const result = findLodash(fileList, { uid: file.uid });
+      operationFileList[index] = result;
+      this.setState({
+        [actionFrom]: operationFileList,
       });
     }
   }
 
+  handleFileUpload(actionFrom, { fileList, file }) {
+    if (actionFrom === 'signatureFileList') {
+      this.validateSgnFiles(fileList, file, actionFrom);
+    } else if (actionFrom === 'signature') {
+      this.validateInputSgnFile(fileList, actionFrom);
+    } else if (actionFrom === 'unitProcedure') {
+      this.setState({
+        [actionFrom]: fileList,
+      });
+    } else {
+      this.validateDuplicateFile(fileList, file, actionFrom);
+    }
+  }
+
   handleClear(actionFrom) {
-    console.log('here coems.....', actionFrom);
     this.setState({
       [actionFrom]: [],
     });

@@ -42,7 +42,11 @@ export class Operations extends Component {
 
   handleModal() {
     const { showModal } = this.state;
-    this.setState({ showModal: !showModal });
+    this.setState({
+      showModal: !showModal,
+      operationFileList: [],
+      signatureFileList: [],
+    });
   }
 
   handleChooseDevice(deviceName) {
@@ -60,7 +64,7 @@ export class Operations extends Component {
         if (result) {
           arr.push(fileList[i]);
         } else {
-          alert('respective Operation file not found');
+          this.error('respective operation file not found');
         }
       }
       this.setState({
@@ -117,7 +121,7 @@ export class Operations extends Component {
         [actionStatus]: fileList,
       });
     } else {
-      alert('respective operation file not found');
+      this.error('respective operation file not found');
     }
   }
 
@@ -154,7 +158,6 @@ export class Operations extends Component {
   }
 
   handleClear(actionFrom) {
-    console.log('here coems.....', actionFrom);
     this.setState({
       [actionFrom]: [],
     });
@@ -168,9 +171,11 @@ export class Operations extends Component {
       .post(url, payload)
       .then(response => {
         console.log(response);
+        this.success('Success');
       })
       .catch(error => {
         console.log(error);
+        this.error('Failure');
       });
   };
 
@@ -184,30 +189,50 @@ export class Operations extends Component {
         ? withoutLodash(opns1, ...sgns1)
         : withoutLodash(sgns1, ...opns1);
     const result1 = result.map(item => item.concat(type));
-    alert(`Please upload ${result1.join()} to proceed further`);
+    this.error(`Please upload ${result1.join()} to proceed further`);
+  }
+
+  success(message) {
+    Modal.success({
+      title: message,
+    });
+  }
+
+  error(message) {
+    Modal.error({
+      title: message,
+    });
   }
 
   handleImport() {
     const { operationFileList, signatureFileList } = this.state;
     const is_opn_sgn_valid =
       operationFileList.length === signatureFileList.length;
-    if (is_opn_sgn_valid) {
-      const payload = {
-        operations: [],
-        signatures: [],
-      };
-      for (let i = 0; i < operationFileList.length; i += 1) {
-        payload.operations.push(operationFileList[i].originFileObj);
+    if (operationFileList.length) {
+      if (signatureFileList.length) {
+        if (is_opn_sgn_valid) {
+          const payload = {
+            operations: [],
+            signatures: [],
+          };
+          for (let i = 0; i < operationFileList.length; i += 1) {
+            payload.operations.push(operationFileList[i].originFileObj);
+          }
+          for (let i = 0; i < signatureFileList.length; i += 1) {
+            payload.signatures.push(signatureFileList[i].originFileObj);
+          }
+          const formData = this.objectToFormData(payload);
+          this.apiFetchLoggedInUserDetails(formData);
+        } else if (operationFileList.length > signatureFileList.length) {
+          this.validateFiles(operationFileList, signatureFileList, '.sgn');
+        } else {
+          this.validateFiles(operationFileList, signatureFileList, '.opn');
+        }
+      } else {
+        this.error('Upload signature files');
       }
-      for (let i = 0; i < signatureFileList.length; i += 1) {
-        payload.signatures.push(signatureFileList[i].originFileObj);
-      }
-      const formData = this.objectToFormData(payload);
-      this.apiFetchLoggedInUserDetails(formData);
-    } else if (operationFileList.length > signatureFileList.length) {
-      this.validateFiles(operationFileList, signatureFileList, '.sgn');
     } else {
-      this.validateFiles(operationFileList, signatureFileList, '.opn');
+      this.error('Upload operation files');
     }
   }
 
