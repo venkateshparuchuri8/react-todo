@@ -1,14 +1,25 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import { Modal, Card, Upload, Button, Row, Input, Col, List } from 'antd';
+
+import {
+  Modal,
+  Card,
+  Upload,
+  Button,
+  Row,
+  Input,
+  Col,
+  List,
+  Typography,
+} from 'antd';
 import { find, map, without } from 'lodash';
 
 const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
 const withoutLodash = (array, values) => without(array, values);
 
-export class Procedures extends Component {
+export class Operations extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -19,6 +30,8 @@ export class Procedures extends Component {
       signature: [],
       deviceName: '',
     };
+    this.errorFiles = [];
+    this.thrownError = false;
     this.statelesskeys = {
       zaggle_card_client_id: '',
     };
@@ -31,40 +44,56 @@ export class Procedures extends Component {
 
   handleModal() {
     const { showModal } = this.state;
+    this.thrownError = false;
     this.setState({
       showModal: !showModal,
       operationFileList: [],
       signatureFileList: [],
-      unitProcedure: [],
-      signature: [],
     });
   }
 
-  success(message) {
-    Modal.success({
-      title: message,
-    });
+  handleChooseDevice(deviceName) {
+    this.setState({ deviceName, showModal: true });
   }
 
-  error(message) {
-    Modal.error({
-      title: message,
-    });
-  }
-
-  apiFetchLoggedInUserDetails = payload => {
-    const { deviceName } = this.state;
-    const staticData = 'https://localhost:8091/recipe/uploadMultipleFiles';
-    const url = `${staticData}/${deviceName}`;
-    axios
-      .post(url, payload)
-      .then(response => {
-        this.success('Success');
-      })
-      .catch(error => {
-        this.error('Failure');
+  validateSgnFiles(fileList, file, actionStatus) {
+    const { operationFileList, signatureFileList } = this.state;
+    const namesList = signatureFileList.map(item => item.name);
+    if (signatureFileList.length > fileList.length) {
+      this.setState({
+        [actionStatus]: fileList,
       });
-  };
+    } else if (namesList.indexOf(file.name) === -1) {
+      const arr = [];
+      this.errorFiles = [];
+      for (let i = 0; i < fileList.length; i += 1) {
+        const fileName = fileList[i].name.split('.sgn');
+        const result = findLodash(operationFileList, { name: fileName[0] });
+        if (result) {
+          arr.push(fileList[i]);
+        } else {
+          this.errorFiles.push(fileName[0]);
+          // this.error(`${fileName[0]} file missing`);
+        }
+      }
+      const fileNameList = fileList.map(item => item.name);
+      const fileNameIndex = fileNameList.indexOf(file.name);
+      if (fileNameList.length - 1 === fileNameIndex) {
+        if (this.errorFiles.length) {
+          const str = this.errorFiles.toString();
+          this.error(`Upload ${str} files to proceed further`);
+        }
+      }
+      this.setState({
+        [actionStatus]: arr,
+      });
+    } else {
+      const index = namesList.indexOf(file.name);
+      const result = findLodash(fileList, { uid: file.uid });
+      signatureFileList[index] = result;
+      this.setState({ signatureFileList });
+    }
+  }
 
   objectToFormData = (obj, form, namespace) => {
     const fd = form || new FormData();
@@ -100,106 +129,6 @@ export class Procedures extends Component {
     return fd;
   };
 
-  handleChooseDevice(deviceName) {
-    this.setState({ deviceName, showModal: true });
-  }
-
-  validateFiles(_opns, _sgns, type) {
-    const opns = mapLodash(_opns, 'name');
-    const sgns = mapLodash(_sgns, 'name');
-    const opns1 = opns.map(item => item.split('.')[0]);
-    const sgns1 = sgns.map(item => item.split('.')[0]);
-    const result =
-      type === '.sgn'
-        ? withoutLodash(opns1, ...sgns1)
-        : withoutLodash(sgns1, ...opns1);
-    const result1 = result.map(item => item.concat(type));
-    // alert(`Please upload ${result1.join()} to proceed further`);
-    this.error(`Please upload ${result1.join()} to proceed further`);
-  }
-
-  handleImport() {
-    const {
-      operationFileList,
-      signatureFileList,
-      unitProcedure,
-      signature,
-    } = this.state;
-    const is_opn_sgn_valid =
-      operationFileList.length === signatureFileList.length;
-    const is_pdr_sgn_valid = unitProcedure.length === signature.length;
-    if (unitProcedure.length) {
-      if (signature.length) {
-        if (operationFileList.length) {
-          if (signatureFileList.length) {
-            if (
-              is_opn_sgn_valid &&
-              is_pdr_sgn_valid &&
-              operationFileList.length &&
-              unitProcedure.length
-            ) {
-              const payload = {
-                operations: [],
-                signatures: [],
-                procedure: unitProcedure[0].originFileObj,
-                prdSignature: signature[0].originFileObj,
-              };
-              for (let i = 0; i < operationFileList.length; i += 1) {
-                payload.operations.push(operationFileList[i].originFileObj);
-              }
-              for (let i = 0; i < signatureFileList.length; i += 1) {
-                payload.signatures.push(signatureFileList[i].originFileObj);
-              }
-              const formData = this.objectToFormData(payload);
-              this.apiFetchLoggedInUserDetails(formData);
-            } else if (operationFileList.length > signatureFileList.length) {
-              this.validateFiles(operationFileList, signatureFileList, '.sgn');
-            } else {
-              this.validateFiles(operationFileList, signatureFileList, '.opn');
-            }
-          } else {
-            this.error('Upload Signature files to proceed further');
-          }
-        } else {
-          this.error('Upload Operation files to proceed further');
-        }
-      } else {
-        this.error('Upload signature file to proceed further');
-      }
-    } else {
-      this.error('Upload unit procedure file to proceed further');
-    }
-  }
-
-  validateSgnFiles(fileList, file, actionStatus) {
-    const { operationFileList, signatureFileList } = this.state;
-    const namesList = signatureFileList.map(item => item.name);
-    if (signatureFileList.length > fileList.length) {
-      this.setState({
-        [actionStatus]: fileList,
-      });
-    } else if (namesList.indexOf(file.name) === -1) {
-      const arr = [];
-      for (let i = 0; i < fileList.length; i += 1) {
-        const fileName = fileList[i].name.split('.sgn');
-        const result = findLodash(operationFileList, { name: fileName[0] });
-        if (result) {
-          arr.push(fileList[i]);
-        } else {
-          this.error('respective operation file not found');
-        }
-      }
-      this.setState({
-        [actionStatus]: arr,
-      });
-    } else {
-      const index = namesList.indexOf(file.name);
-      const result = findLodash(fileList, { uid: file.uid });
-      signatureFileList[index] = result;
-      this.setState({ signatureFileList });
-    }
-  }
-
   validateInputSgnFile(fileList, actionStatus) {
     const { unitProcedure } = this.state;
     const fileName = fileList[0].name.split('.sgn');
@@ -209,7 +138,7 @@ export class Procedures extends Component {
         [actionStatus]: fileList,
       });
     } else {
-      this.error('respective Signature file not found');
+      this.error('Respective operation file not found');
     }
   }
 
@@ -240,10 +169,6 @@ export class Procedures extends Component {
       this.validateSgnFiles(fileList, file, actionFrom);
     } else if (actionFrom === 'signature') {
       this.validateInputSgnFile(fileList, actionFrom);
-    } else if (actionFrom === 'unitProcedure') {
-      this.setState({
-        [actionFrom]: fileList,
-      });
     } else {
       this.validateDuplicateFile(fileList, file, actionFrom);
     }
@@ -253,6 +178,82 @@ export class Procedures extends Component {
     this.setState({
       [actionFrom]: [],
     });
+  }
+
+  apiFetchLoggedInUserDetails = payload => {
+    const { deviceName } = this.state;
+    const staticData = 'https://localhost:8091/recipe/uploadMultipleFiles';
+    const url = `${staticData}/${deviceName}`;
+    axios
+      .post(url, payload)
+      .then(response => {
+        this.success(response && response.data && response.data.description);
+      })
+      .catch(error => {
+        this.error(
+          error &&
+            error.response &&
+            error.response.data &&
+            error.response.data.description,
+        );
+      });
+  };
+
+  validateFiles(_opns, _sgns, type) {
+    const opns = mapLodash(_opns, 'name');
+    const sgns = mapLodash(_sgns, 'name');
+    const opns1 = opns.map(item => item.split('.')[0]);
+    const sgns1 = sgns.map(item => item.split('.')[0]);
+    const result =
+      type === '.sgn'
+        ? withoutLodash(opns1, ...sgns1)
+        : withoutLodash(sgns1, ...opns1);
+    const result1 = result.map(item => item.concat(type));
+    this.error(`Please upload ${result1.join()} to proceed further`);
+  }
+
+  success(message) {
+    Modal.success({
+      title: message,
+    });
+  }
+
+  error(message) {
+    Modal.error({
+      title: message,
+    });
+  }
+
+  handleImport() {
+    const { operationFileList, signatureFileList } = this.state;
+    const is_opn_sgn_valid =
+      operationFileList.length === signatureFileList.length;
+    if (operationFileList.length) {
+      if (signatureFileList.length) {
+        if (is_opn_sgn_valid) {
+          const payload = {
+            operations: [],
+            signatures: [],
+          };
+          for (let i = 0; i < operationFileList.length; i += 1) {
+            payload.operations.push(operationFileList[i].originFileObj);
+          }
+          for (let i = 0; i < signatureFileList.length; i += 1) {
+            payload.signatures.push(signatureFileList[i].originFileObj);
+          }
+          const formData = this.objectToFormData(payload);
+          this.apiFetchLoggedInUserDetails(formData);
+        } else if (operationFileList.length > signatureFileList.length) {
+          this.validateFiles(operationFileList, signatureFileList, '.sgn');
+        } else {
+          this.validateFiles(operationFileList, signatureFileList, '.opn');
+        }
+      } else {
+        this.error('Upload signature files');
+      }
+    } else {
+      this.error('Upload operation files');
+    }
   }
 
   renderUploadItem(item) {
@@ -309,12 +310,6 @@ export class Procedures extends Component {
   }
 
   renderModalContent() {
-    const inputPropsCommon = {
-      multiple: false,
-      showUploadList: false,
-      action: null,
-      beforeUpload: () => false,
-    };
     const bulkPropsCommon = {
       multiple: true,
       showUploadList: true,
@@ -324,51 +319,13 @@ export class Procedures extends Component {
     const { unitProcedure, signature, deviceName } = this.state;
     return (
       <div>
-        <h2>Import CCP Unit Procedure for {deviceName}</h2>
+        <h2>Import Operations for {deviceName}</h2>
         <p>
-          You can import CCP operations recipes with respective to the procedure
-          and signature files selected which were written in recipe editor.These
-          files would be added to the central recipe repository
+          You can import operations recipes written in recipe editor by
+          specifying the files. These files would be added to the central recipe
+          repository
         </p>
-        <Row align="middle" type="flex" gutter={6} className="margin-tb">
-          <Col xs={24} sm={24} md={17} lg={17} xl={17}>
-            <Input
-              value={unitProcedure.length ? unitProcedure[0].name : ''}
-              allowClear
-              onChange={() => this.handleClear('unitProcedure')}
-            />
-          </Col>
-          <Col xs={24} sm={24} md={7} lg={7} xl={7} className="text-right">
-            {this.renderUpload(
-              'unitProcedure',
-              { ...inputPropsCommon, accept: '.pdr' },
-              {
-                title: 'Choose Unit Procedure',
-                buttonClass: 'blue-btn',
-              },
-            )}
-          </Col>
-        </Row>
 
-        <Row align="middle" type="flex" gutter={6} className="margin-tb">
-          <Col xs={24} sm={24} md={17} lg={17} xl={17}>
-            <Input
-              value={signature.length ? signature[0].name : ''}
-              allowClear
-              onChange={() => this.handleClear('signature')}
-            />
-          </Col>
-          <Col xs={24} sm={24} md={7} lg={7} xl={7} className="text-right">
-            {this.renderUpload(
-              'signature',
-              { ...inputPropsCommon, accept: '.sgn' },
-              {
-                title: 'Choose Signature File',
-                buttonClass: 'blue-btn',
-              },
-            )}
-          </Col>
-        </Row>
         <Row align="top" type="flex">
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Card
@@ -388,7 +345,7 @@ export class Procedures extends Component {
           </Col>
           <Col xs={24} sm={24} md={12} lg={12} xl={12}>
             <Card
-              title="Operation Signature File"
+              title="Signature File"
               extra={this.renderUpload('signatureFileList', {
                 ...bulkPropsCommon,
                 accept: '.sgn',
@@ -423,7 +380,7 @@ export class Procedures extends Component {
     return (
       <div>
         <div>
-          {/* <Button type="primary" onClick={this.handleModal}>
+          {/* } <Button type="primary" onClick={this.handleModal}>
             Open Modal
           </Button> */}
           <List
@@ -467,4 +424,4 @@ function mapStateToProps(state) {
 export default connect(
   mapStateToProps,
   {},
-)(Procedures);
+)(Operations);

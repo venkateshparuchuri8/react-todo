@@ -19,6 +19,8 @@ export class Procedures extends Component {
       signature: [],
       deviceName: '',
     };
+    this.thrownError = false;
+    this.errorFiles = [];
     this.statelesskeys = {
       zaggle_card_client_id: '',
     };
@@ -27,10 +29,12 @@ export class Procedures extends Component {
     this.handleClear = this.handleClear.bind(this);
     this.handleImport = this.handleImport.bind(this);
     this.handleChooseDevice = this.handleChooseDevice.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
 
   handleModal() {
     const { showModal } = this.state;
+    this.thrownError = false;
     this.setState({
       showModal: !showModal,
       operationFileList: [],
@@ -102,6 +106,10 @@ export class Procedures extends Component {
 
   handleChooseDevice(deviceName) {
     this.setState({ deviceName, showModal: true });
+  }
+
+  handleClick() {
+    console.log('here comes....handle click....');
   }
 
   validateFiles(_opns, _sgns, type) {
@@ -180,13 +188,23 @@ export class Procedures extends Component {
       });
     } else if (namesList.indexOf(file.name) === -1) {
       const arr = [];
+      this.errorFiles = [];
       for (let i = 0; i < fileList.length; i += 1) {
         const fileName = fileList[i].name.split('.sgn');
         const result = findLodash(operationFileList, { name: fileName[0] });
         if (result) {
           arr.push(fileList[i]);
         } else {
-          this.error('respective operation file not found');
+          this.errorFiles.push(fileName[0]);
+          // this.error(`${fileName[0]} file missing`);
+        }
+      }
+      const fileNameList = fileList.map(item => item.name);
+      const fileNameIndex = fileNameList.indexOf(file.name);
+      if (fileNameList.length - 1 === fileNameIndex) {
+        if (this.errorFiles.length) {
+          const str = this.errorFiles.toString();
+          this.error(`Upload ${str} files to proceed further`);
         }
       }
       this.setState({
@@ -233,6 +251,10 @@ export class Procedures extends Component {
         [actionFrom]: operationFileList,
       });
     }
+  }
+
+  validatecount() {
+    console.log('comes here.....1');
   }
 
   handleFileUpload(actionFrom, { fileList, file }) {
@@ -301,6 +323,7 @@ export class Procedures extends Component {
         {...props}
         key={actionFrom}
         onChange={params => this.handleFileUpload(actionFrom, params)}
+        onClick={this.handleClick}
         fileList={this.renderFileList(actionFrom)}
       >
         <Button className={buttonClass}>{title}</Button>

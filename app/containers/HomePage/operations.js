@@ -30,6 +30,8 @@ export class Operations extends Component {
       signature: [],
       deviceName: '',
     };
+    this.errorFiles = [];
+    this.thrownError = false;
     this.statelesskeys = {
       zaggle_card_client_id: '',
     };
@@ -42,6 +44,7 @@ export class Operations extends Component {
 
   handleModal() {
     const { showModal } = this.state;
+    this.thrownError = false;
     this.setState({
       showModal: !showModal,
       operationFileList: [],
@@ -56,15 +59,29 @@ export class Operations extends Component {
   validateSgnFiles(fileList, file, actionStatus) {
     const { operationFileList, signatureFileList } = this.state;
     const namesList = signatureFileList.map(item => item.name);
-    if (namesList.indexOf(file.name) === -1) {
+    if (signatureFileList.length > fileList.length) {
+      this.setState({
+        [actionStatus]: fileList,
+      });
+    } else if (namesList.indexOf(file.name) === -1) {
       const arr = [];
+      this.errorFiles = [];
       for (let i = 0; i < fileList.length; i += 1) {
         const fileName = fileList[i].name.split('.sgn');
         const result = findLodash(operationFileList, { name: fileName[0] });
         if (result) {
           arr.push(fileList[i]);
         } else {
-          this.error('respective operation file not found');
+          this.errorFiles.push(fileName[0]);
+          // this.error(`${fileName[0]} file missing`);
+        }
+      }
+      const fileNameList = fileList.map(item => item.name);
+      const fileNameIndex = fileNameList.indexOf(file.name);
+      if (fileNameList.length - 1 === fileNameIndex) {
+        if (this.errorFiles.length) {
+          const str = this.errorFiles.toString();
+          this.error(`Upload ${str} files to proceed further`);
         }
       }
       this.setState({
@@ -121,7 +138,7 @@ export class Operations extends Component {
         [actionStatus]: fileList,
       });
     } else {
-      this.error('respective operation file not found');
+      this.error('Respective operation file not found');
     }
   }
 
@@ -165,17 +182,20 @@ export class Operations extends Component {
 
   apiFetchLoggedInUserDetails = payload => {
     const { deviceName } = this.state;
-    const staticData = 'https://localhost:8089/recipe/uploadMultipleFiles';
+    const staticData = 'https://localhost:8091/recipe/uploadMultipleFiles';
     const url = `${staticData}/${deviceName}`;
     axios
       .post(url, payload)
       .then(response => {
-        console.log(response);
-        this.success('Success');
+        this.success(response && response.data && response.data.description);
       })
       .catch(error => {
-        console.log(error);
-        this.error('Failure');
+        this.error(
+          error &&
+            error.response &&
+            error.response.data &&
+            error.response.data.description,
+        );
       });
   };
 
@@ -356,7 +376,7 @@ export class Operations extends Component {
 
   render() {
     const { showModal } = this.state;
-    const data = ['TF2S', 'TF3S', 'XMO3', 'XMO12'];
+    const data = ['CCP', 'CCP1', 'CCP2', 'CCP3'];
     return (
       <div>
         <div>
