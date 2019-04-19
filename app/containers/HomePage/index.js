@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import axios from 'axios';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 import {
   Modal,
@@ -8,208 +9,46 @@ import {
   Upload,
   Button,
   Row,
-  Input,
   Col,
   List,
-  Typography,
+  Menu,
+  Table,
+  Tabs,
+  Icon,
 } from 'antd';
-import { find, map, without } from 'lodash';
+
+import { find, map, pick, forEach, without } from 'lodash';
 
 const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
 const withoutLodash = (array, values) => without(array, values);
+const { TabPane } = Tabs;
+const operations = <h1>Recipe Dispatch</h1>;
 
-export class Operations extends Component {
+class DeviceManagement extends Component {
   constructor(props) {
     super(props);
     this.state = {
       showModal: false,
-      operationFileList: [],
-      signatureFileList: [],
-      unitProcedure: [],
-      signature: [],
-      deviceName: '',
+      deviceList: [],
+      opnList: [],
+      sgnList: [],
+      selectedDevice: '',
+      deviceType: '',
+      activeKey: '1',
+      selectedRowKeys: [],
     };
-    this.errorFiles = [];
-    this.thrownError = false;
-    this.statelesskeys = {
-      zaggle_card_client_id: '',
-    };
+    this.selectedRows = [];
     this.handleModal = this.handleModal.bind(this);
-    this.handleFileUpload = this.handleFileUpload.bind(this);
-    this.handleClear = this.handleClear.bind(this);
-    this.handleImport = this.handleImport.bind(this);
-    this.handleChooseDevice = this.handleChooseDevice.bind(this);
+    this.getReceipes = this.getReceipes.bind(this);
+    this.getDeviceData = this.getDeviceData.bind(this);
+    this.handleTabCallback = this.handleTabCallback.bind(this);
+    this.triggerImport = this.triggerImport.bind(this);
+    this.onSelectChange = this.onSelectChange.bind(this);
   }
 
-  handleModal() {
-    const { showModal } = this.state;
-    this.thrownError = false;
-    this.setState({
-      showModal: !showModal,
-      operationFileList: [],
-      signatureFileList: [],
-    });
-  }
-
-  handleChooseDevice(deviceName) {
-    this.setState({ deviceName, showModal: true });
-  }
-
-  validateSgnFiles(fileList, file, actionStatus) {
-    const { operationFileList, signatureFileList } = this.state;
-    const namesList = signatureFileList.map(item => item.name);
-    if (signatureFileList.length > fileList.length) {
-      this.setState({
-        [actionStatus]: fileList,
-      });
-    } else if (namesList.indexOf(file.name) === -1) {
-      const arr = [];
-      this.errorFiles = [];
-      for (let i = 0; i < fileList.length; i += 1) {
-        const fileName = fileList[i].name.split('.sgn');
-        const result = findLodash(operationFileList, { name: fileName[0] });
-        if (result) {
-          arr.push(fileList[i]);
-        } else {
-          this.errorFiles.push(fileName[0]);
-          // this.error(`${fileName[0]} file missing`);
-        }
-      }
-      const fileNameList = fileList.map(item => item.name);
-      const fileNameIndex = fileNameList.indexOf(file.name);
-      if (fileNameList.length - 1 === fileNameIndex) {
-        if (this.errorFiles.length) {
-          const str = this.errorFiles.toString();
-          this.error(`Upload ${str} files to proceed further`);
-        }
-      }
-      this.setState({
-        [actionStatus]: arr,
-      });
-    } else {
-      const index = namesList.indexOf(file.name);
-      const result = findLodash(fileList, { uid: file.uid });
-      signatureFileList[index] = result;
-      this.setState({ signatureFileList });
-    }
-  }
-
-  objectToFormData = (obj, form, namespace) => {
-    const fd = form || new FormData();
-    let formKey;
-
-    for (const property in obj) {
-      if (obj.hasOwnProperty(property) && obj[property]) {
-        if (namespace) {
-          if (namespace === 'operations' || namespace === 'signatures') {
-            formKey = namespace;
-          } else {
-            formKey = `${namespace}[${property}]`;
-          }
-        } else {
-          formKey = property;
-        }
-
-        // if the property is an object, but not a File, use recursivity.
-        if (obj[property] instanceof Date) {
-          fd.append(formKey, obj[property].toISOString());
-        } else if (
-          typeof obj[property] === 'object' &&
-          !(obj[property] instanceof File)
-        ) {
-          this.objectToFormData(obj[property], fd, formKey);
-        } else {
-          // if it's a string or a File object
-          fd.append(formKey, obj[property]);
-        }
-      }
-    }
-
-    return fd;
-  };
-
-  validateInputSgnFile(fileList, actionStatus) {
-    const { unitProcedure } = this.state;
-    const fileName = fileList[0].name.split('.sgn');
-    const result = findLodash(unitProcedure, { name: fileName[0] });
-    if (result) {
-      this.setState({
-        [actionStatus]: fileList,
-      });
-    } else {
-      this.error('Respective operation file not found');
-    }
-  }
-
-  validateDuplicateFile(fileList, file, actionFrom) {
-    const { operationFileList } = this.state;
-    const namesList = operationFileList.map(item => item.name);
-    const fileName = file.name;
-    if (operationFileList.length > fileList.length) {
-      this.setState({
-        [actionFrom]: fileList,
-      });
-    } else if (namesList.indexOf(fileName) === -1) {
-      this.setState({
-        [actionFrom]: fileList,
-      });
-    } else {
-      const index = namesList.indexOf(fileName);
-      const result = findLodash(fileList, { uid: file.uid });
-      operationFileList[index] = result;
-      this.setState({
-        [actionFrom]: operationFileList,
-      });
-    }
-  }
-
-  handleFileUpload(actionFrom, { fileList, file }) {
-    if (actionFrom === 'signatureFileList') {
-      this.validateSgnFiles(fileList, file, actionFrom);
-    } else if (actionFrom === 'signature') {
-      this.validateInputSgnFile(fileList, actionFrom);
-    } else {
-      this.validateDuplicateFile(fileList, file, actionFrom);
-    }
-  }
-
-  handleClear(actionFrom) {
-    this.setState({
-      [actionFrom]: [],
-    });
-  }
-
-  apiFetchLoggedInUserDetails = payload => {
-    const { deviceName } = this.state;
-    const staticData = 'https://localhost:8091/recipe/uploadMultipleFiles';
-    const url = `${staticData}/${deviceName}`;
-    axios
-      .post(url, payload)
-      .then(response => {
-        this.success(response && response.data && response.data.description);
-      })
-      .catch(error => {
-        this.error(
-          error &&
-            error.response &&
-            error.response.data &&
-            error.response.data.description,
-        );
-      });
-  };
-
-  validateFiles(_opns, _sgns, type) {
-    const opns = mapLodash(_opns, 'name');
-    const sgns = mapLodash(_sgns, 'name');
-    const opns1 = opns.map(item => item.split('.')[0]);
-    const sgns1 = sgns.map(item => item.split('.')[0]);
-    const result =
-      type === '.sgn'
-        ? withoutLodash(opns1, ...sgns1)
-        : withoutLodash(sgns1, ...opns1);
-    const result1 = result.map(item => item.concat(type));
-    this.error(`Please upload ${result1.join()} to proceed further`);
+  componentWillMount() {
+    this.getDeviceList();
   }
 
   success(message) {
@@ -224,193 +63,425 @@ export class Operations extends Component {
     });
   }
 
-  handleImport() {
-    const { operationFileList, signatureFileList } = this.state;
-    const is_opn_sgn_valid =
-      operationFileList.length === signatureFileList.length;
-    if (operationFileList.length) {
-      if (signatureFileList.length) {
-        if (is_opn_sgn_valid) {
-          const payload = {
-            operations: [],
-            signatures: [],
-          };
-          for (let i = 0; i < operationFileList.length; i += 1) {
-            payload.operations.push(operationFileList[i].originFileObj);
-          }
-          for (let i = 0; i < signatureFileList.length; i += 1) {
-            payload.signatures.push(signatureFileList[i].originFileObj);
-          }
-          const formData = this.objectToFormData(payload);
-          this.apiFetchLoggedInUserDetails(formData);
-        } else if (operationFileList.length > signatureFileList.length) {
-          this.validateFiles(operationFileList, signatureFileList, '.sgn');
-        } else {
-          this.validateFiles(operationFileList, signatureFileList, '.opn');
-        }
-      } else {
-        this.error('Upload signature files');
-      }
+  triggerImport() {
+    const data = this.selectedRows;
+    if (data.length) {
+      const { id, deviceId, author } = data[0];
+      // const { selectedRows } = this.state;
+      // const selectedReciepes = selectedRows;
+      // const payload = [];
+      // console.log('here selected receipes...', selectedReciepes);
+      // for (let i = 0; i < selectedReciepes.length; i += 1) {
+      //   const { id, deviceId, author } = selectedReciepes[i];
+      //   payload.push({ id, deviceId, author });
+      // }
+      const payload = { id, deviceId, author };
+      const url = 'http://localhost:8087/recipedispatcherapi/dispatch';
+      axios
+        .post(url, payload)
+        .then(response => {
+          console.log(response);
+          this.success(response.description);
+        })
+        .catch(error => {
+          console.log(error);
+          this.error(error.description);
+        });
     } else {
-      this.error('Upload operation files');
+      this.error('please select receipe to proceed further');
     }
   }
 
-  renderUploadItem(item) {
+  getDeviceData(deviceName, deviceType) {
+    this.setState({
+      showModal: true,
+      selectedDevice: deviceName,
+      deviceType,
+    });
+    this.getReceipes(deviceName, deviceType, 'pdr');
+  }
+
+  constructPayload(payload, type) {
+    const dataArr = [];
+    for (let i = 0; i < payload.length; i += 1) {
+      const tempObj = payload[i];
+      tempObj.deviceType = type;
+      dataArr.push(tempObj);
+    }
+    return dataArr;
+  }
+
+  getReceipes(deviceName, deviceType, type) {
+    // const url = `https://localhost:8091/recipe/fetchByDevice/${deviceName}/receipetype/${type}`;
+    // axios
+    //   .get(url)
+    //   .then(response => {
+    //     console.log(response);
+    //     if (type === 'pdr') {
+    //       const data = this.constructPayload(response.data, deviceType);
+    //       this.setState({ opnList: data });
+    //     } else if (type === 'opn') {
+    //       const data = this.constructPayload(response.data, deviceType);
+    //       this.setState({ sgnList: data });
+    //     }
+    //   })
+    //   .catch(error => {
+    //     console.log(error);
+    //   });
+    const mocData = [
+      {
+        id: 563,
+        name: 'Demo_1553284531600.opn',
+        status: 'Draft',
+        version: 'V1',
+        author: 'merckservice',
+        modifiedDate: 1576134122000,
+        recipe: 'smart',
+        deviceId: '3003',
+        deviceUoPVersion: 'CCP04',
+        deviceUoP: 'CCP',
+        deviceSubFamily: 'Smart XMO',
+        deviceFamily: 'smart',
+        ccprecipelocation: 'Demo_1553284531600.opn',
+        ccpProcedureId: '561',
+      },
+      {
+        id: 564,
+        name: 'Demo1_1553284531600.opn',
+        status: 'Draft',
+        version: 'V1',
+        author: 'merckservice',
+        modifiedDate: 1576134122000,
+        recipe: 'smart',
+        deviceId: '3003',
+        deviceUoPVersion: 'CCP04',
+        deviceUoP: 'CCP',
+        deviceSubFamily: 'Smart XMO',
+        deviceFamily: 'smart',
+        ccprecipelocation: 'Demo1_1553284531600.opn',
+        ccpProcedureId: '561',
+      },
+    ];
+    this.setState({
+      opnList: mocData,
+      sgnList: mocData,
+    });
+  }
+
+  getDeviceList() {
+    // const url = 'https://localhost:8089/api/discoverdDevices/';
+    // axios
+    //   .get(url)
+    //   .then(response => {
+    //     console.log(response);
+    //     this.setState({ deviceList: response.data });
+    //   })
+    //   .catch(error => {
+    //     console.log(error);
+    //   });
+    const mocData = [
+      {
+        id: 82,
+        deviceID: '3003',
+        ip: '10.2.235.607',
+        version: 0,
+        location: 'US',
+        configuration: '{}',
+        device_type: 'Chromatography',
+        onboard: 'true',
+        port: 8089,
+        device_name: 'CCP',
+      },
+      {
+        id: 84,
+        deviceID: '3004',
+        ip: '10.2.235.608',
+        version: 0,
+        location: 'US',
+        configuration: '{}',
+        device_type: 'TFF',
+        onboard: 'true',
+        port: 8089,
+        device_name: 'CCP1',
+      },
+    ];
+    this.setState({ deviceList: mocData });
+  }
+
+  handleModal() {
+    const { showModal } = this.state;
+    this.setState({
+      showModal: !showModal,
+      activeKey: '1',
+      selectedRowKeys: [],
+    });
+    this.selectedRows = [];
+  }
+
+  handleTabCallback(key) {
+    const { selectedDevice, deviceType } = this.state;
+    this.selectedRows = [];
+    this.setState({ activeKey: key, selectedRowKeys: [] });
+    switch (key) {
+      case '1':
+        return this.getReceipes(selectedDevice, deviceType, 'pdr');
+      case '2':
+        return this.getReceipes(selectedDevice, deviceType, 'opn');
+
+      default:
+        return this.getReceipes(selectedDevice, deviceType, 'pdr');
+    }
+  }
+
+  convertDate(timeStamp) {
+    const d = new Date(timeStamp);
+    const currentHours = `0${d.getHours()}`.slice(-2);
+    const currentMinutes = `0${d.getMinutes()}`.slice(-2);
+    const date = `${d.getFullYear()}/${d.getMonth() +
+      1}/${d.getDate()} ${currentHours}:${currentMinutes}`;
+    console.log('here date comes.....', date);
+    return date;
+  }
+
+  onSelectChange = (selectedRowKeys, selectedRows) => {
+    const data = selectedRowKeys.slice(-1);
+    const data1 = selectedRows.slice(-1);
+    this.setState({ selectedRowKeys: data });
+    this.selectedRows = data1;
+  };
+
+  renderNewModalContent() {
+    const { opnList, sgnList, activeKey, selectedRowKeys } = this.state;
+    const rowSelection = {
+      selectedRowKeys,
+      onChange: this.onSelectChange,
+    };
+
+    const UPColumns = [
+      {
+        title: 'Procedures',
+        dataIndex: 'name',
+        key: 'name',
+        width: 400,
+      },
+      {
+        title: 'Device Name',
+        dataIndex: 'deviceUoP',
+        key: 'deviceUoP',
+        width: 150,
+      },
+      {
+        title: 'Device Type',
+        dataIndex: 'deviceType',
+        key: 'deviceType',
+        width: 150,
+      },
+      {
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        width: 100,
+      },
+      {
+        title: 'Modified',
+        key: 'author',
+        render: record => (
+          <div>
+            <span>{record.author}</span>
+            <br />
+            <span>{this.convertDate(record.modifiedDate)}</span>
+          </div>
+        ),
+      },
+    ];
+    const OPColumns = [
+      {
+        title: 'Operations',
+        dataIndex: 'name',
+        key: 'name',
+        width: 400,
+      },
+      {
+        title: 'Device Name',
+        dataIndex: 'deviceUoP',
+        key: 'deviceUoP',
+        width: 150,
+      },
+      {
+        title: 'Device Type',
+        dataIndex: 'deviceType',
+        key: 'deviceType',
+        width: 150,
+      },
+      {
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+        width: 100,
+      },
+      {
+        title: 'Modified',
+        key: 'author',
+        render: record => (
+          <div>
+            <span>{record.author}</span>
+            <br />
+            <span>{this.convertDate(record.modifiedDate)}</span>
+          </div>
+        ),
+      },
+    ];
     return (
-      <div className="ant-upload-list-item ant-upload-list-item-undefined">
-        <div className="ant-upload-list-item-info">
-          <span>
-            <span
-              className="ant-upload-list-item-name"
-              title="43401240_2184080018333916_1646186146226503680_o.jpg"
-            >
-              {item.name}
-            </span>
-            <i
-              aria-label="icon: close"
-              title="Remove file"
-              tabIndex="-1"
-              className="anticon anticon-close"
+      <div>
+        <Tabs
+          tabBarExtraContent={operations}
+          onChange={this.handleTabCallback}
+          activeKey={activeKey}
+        >
+          <TabPane tab="Unit Procedures" key="1">
+            <Table
+              columns={UPColumns}
+              rowKey="id"
+              dataSource={opnList}
+              pagination={false}
+              scroll={{ y: 340 }}
+              rowSelection={rowSelection}
             />
-          </span>
-        </div>
+          </TabPane>
+          <TabPane tab="Operations" key="2">
+            <Table
+              columns={OPColumns}
+              rowKey="id"
+              dataSource={sgnList}
+              pagination={false}
+              scroll={{ y: 340 }}
+              rowSelection={rowSelection}
+            />
+          </TabPane>
+          {/* <TabPane tab="Phases" key="3">
+            Phases data comes here
+          </TabPane> */}
+        </Tabs>
       </div>
     );
   }
 
-  renderFileList(actionFrom) {
-    const { operationFileList, signatureFileList } = this.state;
-    switch (actionFrom) {
-      case 'operationFileList':
-        return operationFileList;
-      case 'signatureFileList':
-        return signatureFileList;
-
-      default:
-        return [];
-    }
-  }
-
-  renderUpload(
-    actionFrom,
-    props,
-    { title, buttonClass } = { title: 'Choose File', buttonClass: 'uploads' },
-  ) {
-    return (
-      <Upload
-        {...props}
-        key={actionFrom}
-        onChange={params => this.handleFileUpload(actionFrom, params)}
-        fileList={this.renderFileList(actionFrom)}
-      >
-        <Button className={buttonClass}>{title}</Button>
-      </Upload>
-    );
-  }
-
-  renderModalContent() {
-    const bulkPropsCommon = {
-      multiple: true,
-      showUploadList: true,
-      action: null,
-      beforeUpload: () => false,
-    };
-    const { unitProcedure, signature, deviceName } = this.state;
+  renderDeviceHeader(title, deviceType) {
     return (
       <div>
-        <h2>Import Operations for {deviceName}</h2>
-        <p>
-          You can import operations recipes written in recipe editor by
-          specifying the files. These files would be added to the central recipe
-          repository
-        </p>
-
-        <Row align="top" type="flex">
-          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-            <Card
-              title="Operation"
-              extra={this.renderUpload('operationFileList', {
-                ...bulkPropsCommon,
-                accept: '.opn',
-              })}
-              className="noBorderRight"
-            >
-              {/* {operationFileList.length &&
-                operationFileList.map(item =>
-                  // <p key={item.name}>{item.name}</p>
-                  this.renderUploadItem(item),
-                )} */}
-            </Card>
-          </Col>
-          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-            <Card
-              title="Signature File"
-              extra={this.renderUpload('signatureFileList', {
-                ...bulkPropsCommon,
-                accept: '.sgn',
-              })}
-            >
-              {/* {signatureFileList.length &&
-                signatureFileList.map(item => (
-                  <p key={item.name}>{item.name}</p>
-                ))} */}
-            </Card>
-          </Col>
-        </Row>
-        <div style={{ textAlign: 'right' }}>
-          <Button type="default" className="uploads" onClick={this.handleModal}>
-            Cancel
-          </Button>
-          <Button
-            type="primary"
-            className="blue-btn margin-left"
-            onClick={this.handleImport}
-          >
-            Import
-          </Button>
-        </div>
+        {/* <Icon
+          type="android"
+          size={100}
+          style={{
+            position: 'absolute',
+            top: '13px',
+            left: '2px',
+            fontSize: '29px',
+          }}
+        /> */}
+        {title}
+        <Icon
+          type="ellipsis"
+          onClick={() => this.getDeviceData(title, deviceType, 'opn')}
+          style={{
+            position: 'absolute',
+            top: '13px',
+            right: '10px',
+            fontSize: '20px',
+            cursor: 'pointer',
+          }}
+        />
       </div>
     );
   }
 
   render() {
-    const { showModal } = this.state;
-    const data = ['CCP', 'CCP1', 'CCP2', 'CCP3'];
+    const { showModal, deviceList } = this.state;
     return (
       <div>
-        <div>
-          {/* } <Button type="primary" onClick={this.handleModal}>
-            Open Modal
+        <Modal
+          title="Import Operations"
+          visible={showModal}
+          onOk={this.handleModal}
+          onCancel={this.handleModal}
+          className="upload-popup background-gray"
+          width="1200px"
+          footer={[
+            <Button key="cancel" type="default" onClick={this.handleModal}>
+              Cancel
+            </Button>,
+            <Button key="submit" type="primary" onClick={this.triggerImport}>
+              Dispatch
+            </Button>,
+          ]}
+        >
+          {this.renderNewModalContent()}
+        </Modal>
+        {/* <Button type="default" onClick={() => this.handleModal()}>
+            Open Here
           </Button> */}
-          <List
+        {/* <List
             header={<div>Device List</div>}
             bordered
             className="customList"
-            dataSource={data}
+            dataSource={deviceList}
             renderItem={item => (
               <List.Item>
-                {item}
+                {item.device_name}
                 <Button
                   type="default"
-                  onClick={() => this.handleChooseDevice(item)}
+                  onClick={() => this.getDeviceData(item.device_name, 'opn')}
                 >
-                  Choose Files
+                  Get Receipes
                 </Button>
               </List.Item>
             )}
-          />
-          <Modal
-            title="Import Operations"
-            visible={showModal}
-            footer={null}
-            onOk={this.handleModal}
-            onCancel={this.handleModal}
-            className="upload-popup"
-            width="750px"
-          >
-            {this.renderModalContent()}
-          </Modal>
+          /> */}
+        <div
+          style={{
+            background: '#ECECEC',
+            padding: '30px',
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            height: '100vh',
+            width: '100%',
+          }}
+        >
+          <Row gutter={16}>
+            <Card
+              title="Device List"
+              style={{
+                background: '#ECECEC',
+              }}
+            >
+              {deviceList.length &&
+                deviceList.map(item => (
+                  <Col span={6} style={{ marginBottom: '20px' }} key={item.id}>
+                    <Card
+                      title={this.renderDeviceHeader(
+                        item.device_name,
+                        item.device_type,
+                      )}
+                      bordered={false}
+                      style={{
+                        height: '220px',
+                        width: '250px',
+                      }}
+                    >
+                      {/* <Button
+                        type="default"
+                        onClick={() =>
+                          this.getDeviceData(item.device_name, 'opn')
+                        }
+                      >
+                        Get Receipes
+                      </Button> */}
+                    </Card>
+                  </Col>
+                ))}
+            </Card>
+          </Row>
         </div>
       </div>
     );
@@ -424,4 +495,4 @@ function mapStateToProps(state) {
 export default connect(
   mapStateToProps,
   {},
-)(Operations);
+)(DeviceManagement);

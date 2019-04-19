@@ -19,6 +19,7 @@ export class Procedures extends Component {
       signature: [],
       deviceName: '',
     };
+    this.isFilePushed = false;
     this.thrownError = false;
     this.errorFiles = [];
     this.statelesskeys = {
@@ -35,6 +36,7 @@ export class Procedures extends Component {
   handleModal() {
     const { showModal } = this.state;
     this.thrownError = false;
+    this.isFilePushed = false;
     this.setState({
       showModal: !showModal,
       operationFileList: [],
@@ -194,6 +196,7 @@ export class Procedures extends Component {
         const result = findLodash(operationFileList, { name: fileName[0] });
         if (result) {
           arr.push(fileList[i]);
+          this.isFilePushed = true;
         } else {
           this.errorFiles.push(fileName[0]);
           // this.error(`${fileName[0]} file missing`);
@@ -202,7 +205,9 @@ export class Procedures extends Component {
       const fileNameList = fileList.map(item => item.name);
       const fileNameIndex = fileNameList.indexOf(file.name);
       if (fileNameList.length - 1 === fileNameIndex) {
-        if (this.errorFiles.length) {
+        if (this.isFilePushed) {
+          this.error('Only one signature file required');
+        } else {
           const str = this.errorFiles.toString();
           this.error(`Upload ${str} files to proceed further`);
         }
