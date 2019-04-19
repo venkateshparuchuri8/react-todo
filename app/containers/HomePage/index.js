@@ -15,6 +15,7 @@ import {
   Table,
   Tabs,
   Icon,
+  Input,
 } from 'antd';
 
 import { find, map, pick, forEach, without } from 'lodash';
@@ -23,6 +24,7 @@ const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
 const withoutLodash = (array, values) => without(array, values);
 const { TabPane } = Tabs;
+const Search = Input.Search;
 const operations = <h1>Recipe Dispatch</h1>;
 
 class DeviceManagement extends Component {
@@ -339,6 +341,21 @@ class DeviceManagement extends Component {
           activeKey={activeKey}
         >
           <TabPane tab="Unit Procedures" key="1">
+            <Row align="top" type="flex" gutter={16}>
+              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Search
+                  placeholder="input search text"
+                  style={{ width: 200 }}
+                />
+                <Button icon="download" style={{ marginLeft: '10px' }} />
+                <Button icon="filter" style={{ marginLeft: '10px' }} />
+              </Col>
+              <Col xs={24} sm={24} md={12} lg={12} xl={12} className="text-right">
+                <Button icon="download" style={{ marginLeft: '10px' }} />
+                <Button icon="plus" style={{ marginLeft: '10px' }} />
+                <Button icon="edit" style={{ marginLeft: '10px' }} />
+              </Col>
+            </Row>
             <Table
               columns={UPColumns}
               rowKey="id"
