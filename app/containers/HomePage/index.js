@@ -16,6 +16,7 @@ import {
   Tabs,
   Icon,
   Input,
+  Popover,
 } from 'antd';
 
 import { find, map, pick, forEach, without } from 'lodash';
@@ -26,6 +27,12 @@ const withoutLodash = (array, values) => without(array, values);
 const { TabPane } = Tabs;
 const Search = Input.Search;
 const operations = <h1>Recipe Dispatch</h1>;
+const content = (
+  <div>
+    Most Recent<br />
+    Alphabetical
+  </div>
+);
 
 class DeviceManagement extends Component {
   constructor(props) {
@@ -347,7 +354,9 @@ class DeviceManagement extends Component {
                   placeholder="input search text"
                   style={{ width: 200 }}
                 />
-                <Button icon="download" style={{ marginLeft: '10px' }} />
+                <Popover placement="bottomRight" content={content} trigger="click">
+                  <Button icon="download" style={{ marginLeft: '10px' }} />
+                </Popover>
                 <Button icon="filter" style={{ marginLeft: '10px' }} />
               </Col>
               <Col xs={24} sm={24} md={12} lg={12} xl={12} className="text-right">
