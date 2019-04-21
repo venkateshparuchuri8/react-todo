@@ -17,6 +17,8 @@ import {
   Icon,
   Input,
   Popover,
+  Drawer,
+  Checkbox,
 } from 'antd';
 
 import { find, map, pick, forEach, without } from 'lodash';
@@ -25,7 +27,9 @@ const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
 const withoutLodash = (array, values) => without(array, values);
 const { TabPane } = Tabs;
-const Search = Input.Search;
+const { Search } = Input;
+const deviceTypes = ['Bioreactor', 'Chromotography', 'TFF'];
+const statusFilters = ['Draft', 'Tech Review', 'In Review', 'Archived'];
 const operations = <h1>Recipe Dispatch</h1>;
 const content = (
   <div>
@@ -47,6 +51,7 @@ class DeviceManagement extends Component {
       deviceType: '',
       activeKey: '1',
       selectedRowKeys: [],
+      showFilter: false,
     };
     this.selectedRows = [];
     this.handleModal = this.handleModal.bind(this);
@@ -55,6 +60,7 @@ class DeviceManagement extends Component {
     this.handleTabCallback = this.handleTabCallback.bind(this);
     this.triggerImport = this.triggerImport.bind(this);
     this.onSelectChange = this.onSelectChange.bind(this);
+    this.triggerFilter = this.triggerFilter.bind(this);
   }
 
   componentWillMount() {
@@ -261,6 +267,11 @@ class DeviceManagement extends Component {
     this.selectedRows = data1;
   };
 
+  triggerFilter() {
+    const { showFilter } = this.state;
+    this.setState({ showFilter: !showFilter });
+  }
+
   renderNewModalContent() {
     const { opnList, sgnList, activeKey, selectedRowKeys } = this.state;
     const rowSelection = {
@@ -363,7 +374,11 @@ class DeviceManagement extends Component {
                 >
                   <Button icon="download" style={{ marginLeft: '10px' }} />
                 </Popover>
-                <Button icon="filter" style={{ marginLeft: '10px' }} />
+                <Button
+                  icon="filter"
+                  onClick={this.triggerFilter}
+                  style={{ marginLeft: '10px' }}
+                />
               </Col>
               <Col
                 xs={24}
@@ -434,8 +449,17 @@ class DeviceManagement extends Component {
     );
   }
 
+  renderFilterText() {
+    return (
+      <div>
+        <Icon type="filter" theme="filled" style={{ color: 'blue' }} /> Filter
+        By
+      </div>
+    );
+  }
+
   render() {
-    const { showModal, deviceList } = this.state;
+    const { showModal, deviceList, showFilter } = this.state;
     return (
       <div>
         <Modal
@@ -459,6 +483,38 @@ class DeviceManagement extends Component {
         <Button type="default" onClick={() => this.handleModal()}>
           Open Here
         </Button>
+        <Drawer
+          title={this.renderFilterText()}
+          placement="right"
+          closable
+          onClose={this.triggerFilter}
+          visible={showFilter}
+          maskClosable={false}
+          width={350}
+        >
+          <h4>Device Type</h4>
+          <Checkbox.Group style={{ width: '100%' }}>
+            <Row>
+              {deviceTypes.length &&
+                deviceTypes.map(item => (
+                  <Col span={24}>
+                    <Checkbox value={item}>{item}</Checkbox>
+                  </Col>
+                ))}
+            </Row>
+          </Checkbox.Group>
+          <h4>Status</h4>
+          <Checkbox.Group style={{ width: '100%' }}>
+            <Row>
+              {statusFilters.length &&
+                statusFilters.map(item => (
+                  <Col span={24}>
+                    <Checkbox value={item}>{item}</Checkbox>
+                  </Col>
+                ))}
+            </Row>
+          </Checkbox.Group>
+        </Drawer>
         {this.renderNewModalContent()}
         {/* <List
             header={<div>Device List</div>}
