@@ -5,18 +5,14 @@ import { connect } from 'react-redux';
 
 import {
   Modal,
-  Card,
-  Upload,
   Button,
   Row,
   Col,
-  List,
-  Menu,
   Table,
   Tabs,
   Icon,
-  Input,
   Popover,
+  Input,
 } from 'antd';
 
 import { find, map, pick, forEach, without } from 'lodash';
@@ -25,8 +21,8 @@ const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
 const withoutLodash = (array, values) => without(array, values);
 const { TabPane } = Tabs;
-const Search = Input.Search;
 const operations = <h1>Recipe Dispatch</h1>;
+const { Search } = Input;
 const content = (
   <div>
     Most Recent
@@ -58,22 +54,37 @@ class DeviceManagement extends Component {
   }
 
   componentWillMount() {
-    // this.getDeviceList();
     this.getReceipes('pdr');
   }
 
-  success(message) {
-    Modal.success({
-      title: message,
-    });
-  }
-
-  error(message) {
-    Modal.error({
-      title: message,
-    });
-  }
-
+  //   triggerImport() {
+  //     const data = this.selectedRows;
+  //     if (data.length) {
+  //       const { id, deviceId, author } = data[0];
+  //       // const { selectedRows } = this.state;
+  //       // const selectedReciepes = selectedRows;
+  //       // const payload = [];
+  //       // console.log('here selected receipes...', selectedReciepes);
+  //       // for (let i = 0; i < selectedReciepes.length; i += 1) {
+  //       //   const { id, deviceId, author } = selectedReciepes[i];
+  //       //   payload.push({ id, deviceId, author });
+  //       // }
+  //       const payload = { id, deviceId, author };
+  //       const url = 'https://localhost:8096/recipedispatcherapi/dispatch';
+  //       axios
+  //         .post(url, payload)
+  //         .then(response => {
+  //           console.log(response);
+  //           this.success(response.description);
+  //         })
+  //         .catch(error => {
+  //           console.log(error);
+  //           this.error(error.description);
+  //         });
+  //     } else {
+  //       this.error('please select a recipe to proceed further');
+  //     }
+  //   }
   triggerImport() {
     const data = this.selectedRows;
     if (data.length) {
@@ -87,20 +98,35 @@ class DeviceManagement extends Component {
       //   payload.push({ id, deviceId, author });
       // }
       const payload = { id, deviceId, author };
-      const url = 'http://localhost:8087/recipedispatcherapi/dispatch';
+      const url = 'https://localhost:8096/recipedispatcherapi/dispatch';
       axios
         .post(url, payload)
         .then(response => {
-          console.log(response);
-          this.success(response.description);
+          this.success(response && response.data && response.data.description);
         })
         .catch(error => {
-          console.log(error);
-          this.error(error.description);
+          this.error(
+            error &&
+              error.response &&
+              error.response.data &&
+              error.response.data.description,
+          );
         });
     } else {
-      this.error('please select receipe to proceed further');
+      this.error('please select a recipe to proceed further');
     }
+  }
+
+  success(message) {
+    Modal.success({
+      title: message,
+    });
+  }
+
+  error(message) {
+    Modal.error({
+      title: message,
+    });
   }
 
   getDeviceData(deviceName, deviceType) {
@@ -124,99 +150,34 @@ class DeviceManagement extends Component {
 
   getReceipes(type) {
     // const url = `https://localhost:8091/recipe/fetchByDevice/${deviceName}/receipetype/${type}`;
-    // axios
-    //   .get(url)
-    //   .then(response => {
-    //     console.log(response);
-    //     if (type === 'pdr') {
-    //       const data = this.constructPayload(response.data, deviceType);
-    //       this.setState({ opnList: data });
-    //     } else if (type === 'opn') {
-    //       const data = this.constructPayload(response.data, deviceType);
-    //       this.setState({ sgnList: data });
-    //     }
-    //   })
-    //   .catch(error => {
-    //     console.log(error);
-    //   });
-    const mocData = [
-      {
-        id: 563,
-        name: 'Demo_1553284531600.opn',
-        status: 'Draft',
-        version: 'V1',
-        author: 'merckservice',
-        modifiedDate: 1576134122000,
-        recipe: 'smart',
-        deviceId: '3003',
-        deviceUoPVersion: 'CCP04',
-        deviceUoP: 'CCP',
-        deviceSubFamily: 'Smart XMO',
-        deviceFamily: 'smart',
-        ccprecipelocation: 'Demo_1553284531600.opn',
-        ccpProcedureId: '561',
-      },
-      {
-        id: 564,
-        name: 'Demo1_1553284531600.opn',
-        status: 'Draft',
-        version: 'V1',
-        author: 'merckservice',
-        modifiedDate: 1576134122000,
-        recipe: 'smart',
-        deviceId: '3003',
-        deviceUoPVersion: 'CCP04',
-        deviceUoP: 'CCP',
-        deviceSubFamily: 'Smart XMO',
-        deviceFamily: 'smart',
-        ccprecipelocation: 'Demo1_1553284531600.opn',
-        ccpProcedureId: '561',
-      },
-    ];
-    this.setState({
-      opnList: mocData,
-      sgnList: mocData,
-    });
+    const url = `https://localhost:8091/recipe/fetchByDevice/CCP/receipetype/${type}`;
+    axios
+      .get(url)
+      .then(response => {
+        if (type === 'pdr') {
+          const data = this.constructPayload(response.data, type);
+          this.setState({ opnList: data });
+        } else if (type === 'opn') {
+          const data = this.constructPayload(response.data, type);
+          this.setState({ sgnList: data });
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   getDeviceList() {
-    // const url = 'https://localhost:8089/api/discoverdDevices/';
-    // axios
-    //   .get(url)
-    //   .then(response => {
-    //     console.log(response);
-    //     this.setState({ deviceList: response.data });
-    //   })
-    //   .catch(error => {
-    //     console.log(error);
-    //   });
-    const mocData = [
-      {
-        id: 82,
-        deviceID: '3003',
-        ip: '10.2.235.607',
-        version: 0,
-        location: 'US',
-        configuration: '{}',
-        device_type: 'Chromatography',
-        onboard: 'true',
-        port: 8089,
-        device_name: 'CCP',
-      },
-      {
-        id: 84,
-        deviceID: '3004',
-        ip: '10.2.235.608',
-        version: 0,
-        location: 'US',
-        configuration: '{}',
-        device_type: 'TFF',
-        onboard: 'true',
-        port: 8089,
-        device_name: 'CCP1',
-      },
-    ];
-    this.setState({ deviceList: mocData });
+    const url = 'https://localhost:8089/api/discoverdDevices/';
+    axios
+      .get(url)
+      .then(response => {
+        console.log(response);
+        this.setState({ deviceList: response.data });
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   handleModal() {
@@ -435,96 +396,7 @@ class DeviceManagement extends Component {
   }
 
   render() {
-    const { showModal, deviceList } = this.state;
-    return (
-      <div>
-        <Modal
-          title="Import Operations"
-          visible={showModal}
-          onOk={this.handleModal}
-          onCancel={this.handleModal}
-          className="upload-popup background-gray"
-          width="1200px"
-          footer={[
-            <Button key="cancel" type="default" onClick={this.handleModal}>
-              Cancel
-            </Button>,
-            <Button key="submit" type="primary" onClick={this.triggerImport}>
-              Dispatch
-            </Button>,
-          ]}
-        >
-          {this.renderNewModalContent()}
-        </Modal>
-        <Button type="default" onClick={() => this.handleModal()}>
-          Open Here
-        </Button>
-        {this.renderNewModalContent()}
-        {/* <List
-            header={<div>Device List</div>}
-            bordered
-            className="customList"
-            dataSource={deviceList}
-            renderItem={item => (
-              <List.Item>
-                {item.device_name}
-                <Button
-                  type="default"
-                  onClick={() => this.getDeviceData(item.device_name, 'opn')}
-                >
-                  Get Receipes
-                </Button>
-              </List.Item>
-            )}
-          /> */}
-        {/* <div
-          style={{
-            background: '#ECECEC',
-            padding: '30px',
-            position: 'absolute',
-            top: '0',
-            left: '0',
-            height: '100vh',
-            width: '100%',
-          }}
-        >
-          <Row gutter={16}>
-            <Card
-              title="Device List"
-              style={{
-                background: '#ECECEC',
-              }}
-            >
-              {deviceList.length &&
-                deviceList.map(item => (
-                  <Col span={6} style={{ marginBottom: '20px' }} key={item.id}>
-                    <Card
-                      title={this.renderDeviceHeader(
-                        item.device_name,
-                        item.device_type,
-                      )}
-                      bordered={false}
-                      style={{
-                        height: '220px',
-                        width: '250px',
-                      }}
-                    >
-                      <Button
-                        type="default"
-                        onClick={() =>
-                          this.getDeviceData(item.device_name, 'opn')
-                        }
-                      >
-                        Get Receipes
-                      </Button>
-                    </Card>
-                  </Col>
-                ))}
-            </Card>
-          </Row>
-        </div> */}
-      </div>
-    );
+    return <div>{this.renderNewModalContent()}</div>;
   }
 }
 
