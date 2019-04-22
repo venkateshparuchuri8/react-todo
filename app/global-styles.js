@@ -16,7 +16,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   #app {
-    background-color: #fafafa;
+    background-color: #e9e8ec;
     min-height: 100%;
     min-width: 100%;
   }
@@ -108,6 +108,84 @@ const GlobalStyle = createGlobalStyle`
     }
       
     }
+
+    &.background-lightgray{
+      .ant-tabs{
+        .ant-tabs-bar{
+          padding-bottom:15px;
+          border-bottom: 1px solid #ccc;
+        }
+        .ant-tabs-extra-content{
+          float:left !important;
+          h1{
+            font-size:20px;
+          }
+        }
+        .ant-tabs-nav-scroll{
+          float:right;
+          .ant-tabs-nav{
+            .ant-tabs-ink-bar{
+              background-color:#a4a3ab;
+            }
+            .ant-tabs-tab{
+              font-size:12px;
+              margin:0px;
+              padding:12px;
+              &.ant-tabs-tab-active{
+              color:#a4a3ab;
+              font-weight:bold;
+            }
+            }
+          }
+        }
+      }
+      .ant-modal-body{
+        background:#e9e8ed;
+        padding-bottom:0px;
+      }
+      .ant-modal-footer{
+        background:#e9e8ed;
+      }
+      .ant-table-fixed-header{
+        margin-top:20px;
+        .ant-table-scroll{
+        .ant-table-body{
+        .ant-table-thead{
+          tr{
+            th{
+              background:transparent;
+              border-bottom:0px;
+            }
+          }
+        }
+        .ant-table-tbody{
+          .ant-table-row{
+            background:#fff;
+            td{
+              border-bottom: 8px solid #e9e8ed;
+              &:first-child{
+                border-radius:10px 0px 0px 10px;
+              }
+              &:last-child{
+                border-radius:0px 10px 10px 0px;
+              }
+            }
+          }
+        }
+      }
+      }
+      }
+      .ant-table-selection {
+      visibility: hidden;
+    }
+    .ant-checkbox-inner {
+          border-radius: 50px;
+    outline: none;
+    }
+      
+    }
+
+
     .ant-upload-list{
     &.ant-upload-list-text{
       position: absolute;

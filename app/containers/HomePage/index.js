@@ -33,9 +33,8 @@ const statusFilters = ['Draft', 'Tech Review', 'In Review', 'Archived'];
 const operations = <h1>Recipe Dispatch</h1>;
 const content = (
   <div>
-    Most Recent
-    <br />
-    Alphabetical
+    <div style={{ padding: '5px' }}>Most Recent</div>
+    <div style={{ padding: '5px' }}>Alphabetical</div>
   </div>
 );
 
@@ -515,7 +514,9 @@ class DeviceManagement extends Component {
             </Row>
           </Checkbox.Group>
         </Drawer>
-        {this.renderNewModalContent()}
+        <div className="upload-popup background-gray">
+          {this.renderNewModalContent()}
+        </div>
         {/* <List
             header={<div>Device List</div>}
             bordered
