@@ -22,7 +22,6 @@ import {
 } from 'antd';
 
 import { find, map, pick, forEach, without } from 'lodash';
-import Highlighter from 'react-highlight-words';
 
 const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
@@ -38,136 +37,7 @@ const content = (
     <div style={{ padding: '5px' }}>Alphabetical</div>
   </div>
 );
-const mocData = [
-  {
-    id: 563,
-    name: 'Demo_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-  {
-    id: 564,
-    name: 'Demo1_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo1_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-  {
-    id: 565,
-    name: 'Demo_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-  {
-    id: 566,
-    name: 'Demo1_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo1_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-  {
-    id: 567,
-    name: 'Demo_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-  {
-    id: 568,
-    name: 'Demo1_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo1_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-  {
-    id: 569,
-    name: 'Demo_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-  {
-    id: 570,
-    name: 'Demo1_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo1_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-];
+
 class DeviceManagement extends Component {
   constructor(props) {
     super(props);
@@ -661,7 +531,11 @@ class DeviceManagement extends Component {
           </Col>
         </Row>
         <div style={{ textAlign: 'right' }}>
-          <Button type="default" className="uploads" onClick={this.handleModal}>
+          <Button
+            type="default"
+            className="uploads"
+            onClick={this.handleOprationalModal}
+          >
             Cancel
           </Button>
           <Button
@@ -726,7 +600,11 @@ class DeviceManagement extends Component {
           </Col>
         </Row>
         <div style={{ textAlign: 'right' }}>
-          <Button type="default" className="uploads" onClick={this.handleModal}>
+          <Button
+            type="default"
+            className="uploads"
+            onClick={this.handleOprationalModal}
+          >
             Cancel
           </Button>
           <Button
@@ -803,35 +681,40 @@ class DeviceManagement extends Component {
   }
 
   getReceipes(type) {
-    // const url = `https://localhost:8091/recipe/fetchByDevice/${deviceName}/receipetype/${type}`;
-    // axios
-    //   .get(url)
-    //   .then(response => {
-    //     console.log(response);
-    //     if (type === 'pdr') {
-    //       const data = this.constructPayload(response.data, deviceType);
-    //       this.setState({ opnList: data });
-    //     } else if (type === 'opn') {
-    //       const data = this.constructPayload(response.data, deviceType);
-    //       this.setState({ sgnList: data });
-    //     }
-    //   })
-    //   .catch(error => {
-    //     console.log(error);
-    //   });
-    this.setState({
-      opnList: mocData,
-      sgnList: mocData,
-    });
+    const url = `https://localhost:8091/recipe/fetchByDevice/CCP/receipetype/${type}`;
+    // url: https://10.2.232.184:8134/metadatas/device_uop_ver/XMO4
+    axios
+      .get(url)
+      .then(response => {
+        if (type === 'pdr') {
+          const data = this.constructPayload(response.data, type);
+          this.setState({ opnList: data });
+        } else if (type === 'opn') {
+          const data = this.constructPayload(response.data, type);
+          this.setState({ sgnList: data });
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   triggerDeviceList() {
-    this.setState({ deviceList: mocData, showModal: true });
+    const url = 'https://localhost:8089/api/discoverdDevices/';
+    axios
+      .get(url)
+      .then(response => {
+        this.setState({ deviceList: response.data, showModal: true });
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   triggerNext() {
     const data = this.selectedRows;
     console.log('here data...', data);
+    this.setState({ showModal: false, showOprationalModal: true });
   }
 
   getDeviceList() {
@@ -1093,11 +976,11 @@ class DeviceManagement extends Component {
     const columns = [
       {
         title: 'Name',
-        dataIndex: 'name',
-        key: 'name',
+        dataIndex: 'device_name',
+        key: 'device_name',
       },
     ];
-    const { selectedRowKeys } = this.state;
+    const { selectedRowKeys, deviceList } = this.state;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
@@ -1107,7 +990,7 @@ class DeviceManagement extends Component {
         <h2>Select Devices from the list below</h2>
         <Table
           columns={columns}
-          dataSource={mocData}
+          dataSource={deviceList}
           pagination={false}
           scroll={{ y: 340 }}
           rowSelection={rowSelection}
@@ -1156,16 +1039,13 @@ class DeviceManagement extends Component {
           title="Import Operations"
           visible={showOprationalModal}
           footer={null}
-          onOk={this.handleModal}
-          onCancel={this.handleModal}
+          onOk={this.handleOprationalModal}
+          onCancel={this.handleOprationalModal}
           className="upload-popup"
           width="750px"
         >
           {this.renderModalContent()}
         </Modal>
-        <Button type="default" onClick={() => this.handleModal()}>
-          Open Here
-        </Button>
         <Drawer
           title={this.renderFilterText()}
           placement="right"

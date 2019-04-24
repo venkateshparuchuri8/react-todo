@@ -22,6 +22,7 @@ import {
 } from 'antd';
 
 import { find, map, pick, forEach, without } from 'lodash';
+import Highlighter from 'react-highlight-words';
 
 const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
@@ -37,7 +38,136 @@ const content = (
     <div style={{ padding: '5px' }}>Alphabetical</div>
   </div>
 );
-
+const mocData = [
+  {
+    id: 563,
+    name: 'Demo_1553284531600.opn',
+    status: 'Draft',
+    version: 'V1',
+    author: 'merckservice',
+    modifiedDate: 1576134122000,
+    recipe: 'smart',
+    deviceId: '3003',
+    deviceUoPVersion: 'CCP04',
+    deviceUoP: 'CCP',
+    deviceSubFamily: 'Smart XMO',
+    deviceFamily: 'smart',
+    ccprecipelocation: 'Demo_1553284531600.opn',
+    ccpProcedureId: '561',
+  },
+  {
+    id: 564,
+    name: 'Demo1_1553284531600.opn',
+    status: 'Draft',
+    version: 'V1',
+    author: 'merckservice',
+    modifiedDate: 1576134122000,
+    recipe: 'smart',
+    deviceId: '3003',
+    deviceUoPVersion: 'CCP04',
+    deviceUoP: 'CCP',
+    deviceSubFamily: 'Smart XMO',
+    deviceFamily: 'smart',
+    ccprecipelocation: 'Demo1_1553284531600.opn',
+    ccpProcedureId: '561',
+  },
+  {
+    id: 565,
+    name: 'Demo_1553284531600.opn',
+    status: 'Draft',
+    version: 'V1',
+    author: 'merckservice',
+    modifiedDate: 1576134122000,
+    recipe: 'smart',
+    deviceId: '3003',
+    deviceUoPVersion: 'CCP04',
+    deviceUoP: 'CCP',
+    deviceSubFamily: 'Smart XMO',
+    deviceFamily: 'smart',
+    ccprecipelocation: 'Demo_1553284531600.opn',
+    ccpProcedureId: '561',
+  },
+  {
+    id: 566,
+    name: 'Demo1_1553284531600.opn',
+    status: 'Draft',
+    version: 'V1',
+    author: 'merckservice',
+    modifiedDate: 1576134122000,
+    recipe: 'smart',
+    deviceId: '3003',
+    deviceUoPVersion: 'CCP04',
+    deviceUoP: 'CCP',
+    deviceSubFamily: 'Smart XMO',
+    deviceFamily: 'smart',
+    ccprecipelocation: 'Demo1_1553284531600.opn',
+    ccpProcedureId: '561',
+  },
+  {
+    id: 567,
+    name: 'Demo_1553284531600.opn',
+    status: 'Draft',
+    version: 'V1',
+    author: 'merckservice',
+    modifiedDate: 1576134122000,
+    recipe: 'smart',
+    deviceId: '3003',
+    deviceUoPVersion: 'CCP04',
+    deviceUoP: 'CCP',
+    deviceSubFamily: 'Smart XMO',
+    deviceFamily: 'smart',
+    ccprecipelocation: 'Demo_1553284531600.opn',
+    ccpProcedureId: '561',
+  },
+  {
+    id: 568,
+    name: 'Demo1_1553284531600.opn',
+    status: 'Draft',
+    version: 'V1',
+    author: 'merckservice',
+    modifiedDate: 1576134122000,
+    recipe: 'smart',
+    deviceId: '3003',
+    deviceUoPVersion: 'CCP04',
+    deviceUoP: 'CCP',
+    deviceSubFamily: 'Smart XMO',
+    deviceFamily: 'smart',
+    ccprecipelocation: 'Demo1_1553284531600.opn',
+    ccpProcedureId: '561',
+  },
+  {
+    id: 569,
+    name: 'Demo_1553284531600.opn',
+    status: 'Draft',
+    version: 'V1',
+    author: 'merckservice',
+    modifiedDate: 1576134122000,
+    recipe: 'smart',
+    deviceId: '3003',
+    deviceUoPVersion: 'CCP04',
+    deviceUoP: 'CCP',
+    deviceSubFamily: 'Smart XMO',
+    deviceFamily: 'smart',
+    ccprecipelocation: 'Demo_1553284531600.opn',
+    ccpProcedureId: '561',
+  },
+  {
+    id: 570,
+    name: 'Demo1_1553284531600.opn',
+    status: 'Draft',
+    version: 'V1',
+    author: 'merckservice',
+    modifiedDate: 1576134122000,
+    recipe: 'smart',
+    deviceId: '3003',
+    deviceUoPVersion: 'CCP04',
+    deviceUoP: 'CCP',
+    deviceSubFamily: 'Smart XMO',
+    deviceFamily: 'smart',
+    ccprecipelocation: 'Demo1_1553284531600.opn',
+    ccpProcedureId: '561',
+  },
+];
 class DeviceManagement extends Component {
   constructor(props) {
     super(props);
@@ -51,6 +181,18 @@ class DeviceManagement extends Component {
       activeKey: '1',
       selectedRowKeys: [],
       showFilter: false,
+      operationFileList: [],
+      signatureFileList: [],
+      unitProcedure: [],
+      signature: [],
+      deviceName: '',
+      showOprationalModal: false,
+    };
+    this.isFilePushed = false;
+    this.thrownError = false;
+    this.errorFiles = [];
+    this.statelesskeys = {
+      zaggle_card_client_id: '',
     };
     this.selectedRows = [];
     this.handleModal = this.handleModal.bind(this);
@@ -60,6 +202,15 @@ class DeviceManagement extends Component {
     this.triggerImport = this.triggerImport.bind(this);
     this.onSelectChange = this.onSelectChange.bind(this);
     this.triggerFilter = this.triggerFilter.bind(this);
+    this.triggerDeviceList = this.triggerDeviceList.bind(this);
+    this.triggerNext = this.triggerNext.bind(this);
+    this.handleOprationalModal = this.handleOprationalModal.bind(this);
+    this.handleFileUpload = this.handleFileUpload.bind(this);
+    this.handleClear = this.handleClear.bind(this);
+    this.handleProcedureImport = this.handleProcedureImport.bind(this);
+    this.handleOperationalImport = this.handleOperationalImport.bind(this);
+    this.handleChooseDevice = this.handleChooseDevice.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
 
   componentWillMount() {
@@ -77,6 +228,530 @@ class DeviceManagement extends Component {
     Modal.error({
       title: message,
     });
+  }
+
+  handleOprationalModal() {
+    const { showOprationalModal } = this.state;
+    this.thrownError = false;
+    this.isFilePushed = false;
+    this.setState({
+      showOprationalModal: !showOprationalModal,
+      operationFileList: [],
+      signatureFileList: [],
+      unitProcedure: [],
+      signature: [],
+    });
+  }
+
+  apiFetchLoggedInUserDetails = payload => {
+    const { deviceName } = this.state;
+    const staticData = 'https://localhost:8091/recipe/uploadMultipleFiles';
+    const url = `${staticData}/${deviceName}`;
+    axios
+      .post(url, payload)
+      .then(response => {
+        this.success(response && response.data && response.data.description);
+      })
+      .catch(error => {
+        if (error.response == null) {
+          this.error('Technical error. Please contact administrator');
+        } else {
+          this.error(
+            error &&
+              // error.response
+              error.response.data &&
+              error.response.data.description,
+          );
+          // alert(error.response);
+        }
+      });
+  };
+
+  objectToFormData = (obj, form, namespace) => {
+    const fd = form || new FormData();
+    let formKey;
+
+    for (const property in obj) {
+      if (obj.hasOwnProperty(property) && obj[property]) {
+        if (namespace) {
+          if (namespace === 'operations' || namespace === 'signatures') {
+            formKey = namespace;
+          } else {
+            formKey = `${namespace}[${property}]`;
+          }
+        } else {
+          formKey = property;
+        }
+
+        // if the property is an object, but not a File, use recursivity.
+        if (obj[property] instanceof Date) {
+          fd.append(formKey, obj[property].toISOString());
+        } else if (
+          typeof obj[property] === 'object' &&
+          !(obj[property] instanceof File)
+        ) {
+          this.objectToFormData(obj[property], fd, formKey);
+        } else {
+          // if it's a string or a File object
+          fd.append(formKey, obj[property]);
+        }
+      }
+    }
+
+    return fd;
+  };
+
+  handleChooseDevice(deviceName) {
+    this.setState({ deviceName, showOprationalModal: true });
+  }
+
+  handleClick() {
+    console.log('here comes....handle click....');
+  }
+
+  validateFiles(_opns, _sgns, type) {
+    const opns = mapLodash(_opns, 'name');
+    const sgns = mapLodash(_sgns, 'name');
+    const opns1 = opns.map(item => item.split('.')[0]);
+    const sgns1 = sgns.map(item => item.split('.')[0]);
+    const result =
+      type === '.sgn'
+        ? withoutLodash(opns1, ...sgns1)
+        : withoutLodash(sgns1, ...opns1);
+    const result1 = result.map(item => item.concat(type));
+    // alert(`Please upload ${result1.join()} to proceed further`);
+    this.error(`Please upload ${result1.join()} to proceed further`);
+  }
+
+  handleProcedureImport() {
+    const {
+      operationFileList,
+      signatureFileList,
+      unitProcedure,
+      signature,
+    } = this.state;
+    const is_opn_sgn_valid =
+      operationFileList.length === signatureFileList.length;
+    const is_pdr_sgn_valid = unitProcedure.length === signature.length;
+    if (unitProcedure.length) {
+      if (signature.length) {
+        if (operationFileList.length) {
+          if (signatureFileList.length) {
+            if (
+              is_opn_sgn_valid &&
+              is_pdr_sgn_valid &&
+              operationFileList.length &&
+              unitProcedure.length
+            ) {
+              const payload = {
+                operations: [],
+                signatures: [],
+                procedure: unitProcedure[0].originFileObj,
+                prdSignature: signature[0].originFileObj,
+              };
+              for (let i = 0; i < operationFileList.length; i += 1) {
+                payload.operations.push(operationFileList[i].originFileObj);
+              }
+              for (let i = 0; i < signatureFileList.length; i += 1) {
+                payload.signatures.push(signatureFileList[i].originFileObj);
+              }
+              const formData = this.objectToFormData(payload);
+              this.apiFetchLoggedInUserDetails(formData);
+            } else if (operationFileList.length > signatureFileList.length) {
+              this.validateFiles(operationFileList, signatureFileList, '.sgn');
+            } else {
+              this.validateFiles(operationFileList, signatureFileList, '.opn');
+            }
+          } else {
+            this.error('Upload Signature files to proceed further');
+          }
+        } else {
+          this.error('Upload Operation files to proceed further');
+        }
+      } else {
+        this.error('Upload signature file to proceed further');
+      }
+    } else {
+      this.error('Upload unit procedure file to proceed further');
+    }
+  }
+
+  handleOperationalImport() {
+    const { operationFileList, signatureFileList } = this.state;
+    const is_opn_sgn_valid =
+      operationFileList.length === signatureFileList.length;
+    if (operationFileList.length) {
+      if (signatureFileList.length) {
+        if (is_opn_sgn_valid) {
+          const payload = {
+            operations: [],
+            signatures: [],
+          };
+          for (let i = 0; i < operationFileList.length; i += 1) {
+            payload.operations.push(operationFileList[i].originFileObj);
+          }
+          for (let i = 0; i < signatureFileList.length; i += 1) {
+            payload.signatures.push(signatureFileList[i].originFileObj);
+          }
+          const formData = this.objectToFormData(payload);
+          this.apiFetchLoggedInUserDetails(formData);
+          // this.props.apiFetchLoggedInUserDetails({ deviceName: this.state.deviceName, formData })
+          // .then(() => {
+          //   console.log(this.props);
+          // });
+        } else if (operationFileList.length > signatureFileList.length) {
+          this.validateFiles(operationFileList, signatureFileList, '.sgn');
+        } else {
+          this.validateFiles(operationFileList, signatureFileList, '.opn');
+        }
+      } else {
+        this.error('Upload signature files');
+      }
+    } else {
+      this.error('Upload operation files');
+    }
+  }
+
+  validateSgnFiles(fileList, file, actionStatus) {
+    const { operationFileList, signatureFileList } = this.state;
+    const namesList = signatureFileList.map(item => item.name);
+    if (signatureFileList.length > fileList.length) {
+      this.setState({
+        [actionStatus]: fileList,
+      });
+    } else if (namesList.indexOf(file.name) === -1) {
+      const arr = [];
+      this.errorFiles = [];
+      for (let i = 0; i < fileList.length; i += 1) {
+        const fileName = fileList[i].name.split('.sgn');
+        const result = findLodash(operationFileList, { name: fileName[0] });
+        if (result) {
+          arr.push(fileList[i]);
+          this.isFilePushed = true;
+        } else {
+          this.errorFiles.push(fileName[0]);
+          // this.error(`${fileName[0]} file missing`);
+        }
+      }
+      const fileNameList = fileList.map(item => item.name);
+      const fileNameIndex = fileNameList.indexOf(file.name);
+      if (fileNameList.length - 1 === fileNameIndex) {
+        if (this.isFilePushed) {
+          this.error('Please select required signature files only');
+        } else {
+          const str = this.errorFiles.toString();
+          this.error(`Upload ${str} files to proceed further`);
+        }
+      }
+      this.setState({
+        [actionStatus]: arr,
+      });
+    } else {
+      const index = namesList.indexOf(file.name);
+      const result = findLodash(fileList, { uid: file.uid });
+      signatureFileList[index] = result;
+      this.setState({ signatureFileList });
+    }
+  }
+
+  validateInputSgnFile(fileList, actionStatus) {
+    const { unitProcedure } = this.state;
+    const fileName = fileList[0].name.split('.sgn');
+    const result = findLodash(unitProcedure, { name: fileName[0] });
+    if (result) {
+      this.setState({
+        [actionStatus]: fileList,
+      });
+    } else {
+      this.error('Respective Signature file not found');
+    }
+  }
+
+  validateDuplicateFile(fileList, file, actionFrom) {
+    const { operationFileList } = this.state;
+    const namesList = operationFileList.map(item => item.name);
+    const fileName = file.name;
+    if (operationFileList.length > fileList.length) {
+      this.setState({
+        [actionFrom]: fileList,
+      });
+    } else if (namesList.indexOf(fileName) === -1) {
+      this.setState({
+        [actionFrom]: fileList,
+      });
+    } else {
+      const index = namesList.indexOf(fileName);
+      const result = findLodash(fileList, { uid: file.uid });
+      operationFileList[index] = result;
+      this.setState({
+        [actionFrom]: operationFileList,
+      });
+    }
+  }
+
+  validatecount() {
+    console.log('comes here.....1');
+  }
+
+  handleFileUpload(actionFrom, { fileList, file }) {
+    if (actionFrom === 'signatureFileList') {
+      this.validateSgnFiles(fileList, file, actionFrom);
+    } else if (actionFrom === 'signature') {
+      this.validateInputSgnFile(fileList, actionFrom);
+    } else if (actionFrom === 'unitProcedure') {
+      this.setState({
+        [actionFrom]: fileList,
+      });
+    } else {
+      this.validateDuplicateFile(fileList, file, actionFrom);
+    }
+  }
+
+  handleClear(actionFrom) {
+    this.setState({
+      [actionFrom]: [],
+    });
+  }
+
+  renderUploadItem(item) {
+    return (
+      <div className="ant-upload-list-item ant-upload-list-item-undefined">
+        <div className="ant-upload-list-item-info">
+          <span>
+            <span
+              className="ant-upload-list-item-name"
+              title="43401240_2184080018333916_1646186146226503680_o.jpg"
+            >
+              {item.name}
+            </span>
+            <i
+              aria-label="icon: close"
+              title="Remove file"
+              tabIndex="-1"
+              className="anticon anticon-close"
+            />
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  renderFileList(actionFrom) {
+    const { operationFileList, signatureFileList } = this.state;
+    switch (actionFrom) {
+      case 'operationFileList':
+        return operationFileList;
+      case 'signatureFileList':
+        return signatureFileList;
+
+      default:
+        return [];
+    }
+  }
+
+  renderUpload(
+    actionFrom,
+    props,
+    { title, buttonClass } = { title: 'Choose File', buttonClass: 'uploads' },
+  ) {
+    return (
+      <Upload
+        {...props}
+        key={actionFrom}
+        onChange={params => this.handleFileUpload(actionFrom, params)}
+        onClick={this.handleClick}
+        fileList={this.renderFileList(actionFrom)}
+      >
+        <Button className={buttonClass}>{title}</Button>
+      </Upload>
+    );
+  }
+
+  renderProceduresTemplate() {
+    const inputPropsCommon = {
+      multiple: false,
+      showUploadList: false,
+      action: null,
+      beforeUpload: () => false,
+    };
+    const bulkPropsCommon = {
+      multiple: true,
+      showUploadList: true,
+      action: null,
+      beforeUpload: () => false,
+    };
+    const { unitProcedure, signature, deviceName } = this.state;
+    return (
+      <div>
+        <h2>Import CCP Unit Procedure for {deviceName}</h2>
+        <p>
+          You can import CCP operations recipes with respective to the procedure
+          and signature files selected which were written in recipe editor.These
+          files would be added to the central recipe repository
+        </p>
+        <Row align="middle" type="flex" gutter={6} className="margin-tb">
+          <Col xs={24} sm={24} md={17} lg={17} xl={17}>
+            <Input
+              value={unitProcedure.length ? unitProcedure[0].name : ''}
+              allowClear
+              onChange={() => this.handleClear('unitProcedure')}
+            />
+          </Col>
+          <Col xs={24} sm={24} md={7} lg={7} xl={7} className="text-right">
+            {this.renderUpload(
+              'unitProcedure',
+              { ...inputPropsCommon, accept: '.pdr' },
+              {
+                title: 'Choose Unit Procedure',
+                buttonClass: 'blue-btn',
+              },
+            )}
+          </Col>
+        </Row>
+
+        <Row align="middle" type="flex" gutter={6} className="margin-tb">
+          <Col xs={24} sm={24} md={17} lg={17} xl={17}>
+            <Input
+              value={signature.length ? signature[0].name : ''}
+              allowClear
+              onChange={() => this.handleClear('signature')}
+            />
+          </Col>
+          <Col xs={24} sm={24} md={7} lg={7} xl={7} className="text-right">
+            {this.renderUpload(
+              'signature',
+              { ...inputPropsCommon, accept: '.sgn' },
+              {
+                title: 'Choose Signature File',
+                buttonClass: 'blue-btn',
+              },
+            )}
+          </Col>
+        </Row>
+        <Row align="top" type="flex">
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Card
+              title="Operation"
+              extra={this.renderUpload('operationFileList', {
+                ...bulkPropsCommon,
+                accept: '.opn',
+              })}
+              className="noBorderRight"
+            >
+              {/* {operationFileList.length &&
+                operationFileList.map(item =>
+                  // <p key={item.name}>{item.name}</p>
+                  this.renderUploadItem(item),
+                )} */}
+            </Card>
+          </Col>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Card
+              title="Operation Signature File"
+              extra={this.renderUpload('signatureFileList', {
+                ...bulkPropsCommon,
+                accept: '.sgn',
+              })}
+            >
+              {/* {signatureFileList.length &&
+                signatureFileList.map(item => (
+                  <p key={item.name}>{item.name}</p>
+                ))} */}
+            </Card>
+          </Col>
+        </Row>
+        <div style={{ textAlign: 'right' }}>
+          <Button type="default" className="uploads" onClick={this.handleModal}>
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            className="blue-btn margin-left"
+            onClick={this.handleProcedureImport}
+          >
+            Import
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  renderOperationsTemplate() {
+    const bulkPropsCommon = {
+      multiple: true,
+      showUploadList: true,
+      action: null,
+      beforeUpload: () => false,
+    };
+    const { unitProcedure, signature, deviceName } = this.state;
+    return (
+      <div>
+        <h2>Import Operations for {deviceName}</h2>
+        <p>
+          You can import operations recipes written in recipe editor by
+          specifying the files. These files would be added to the central recipe
+          repository
+        </p>
+
+        <Row align="top" type="flex">
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Card
+              title="Operation"
+              extra={this.renderUpload('operationFileList', {
+                ...bulkPropsCommon,
+                accept: '.opn',
+              })}
+              className="noBorderRight"
+            >
+              {/* {operationFileList.length &&
+                operationFileList.map(item =>
+                  // <p key={item.name}>{item.name}</p>
+                  this.renderUploadItem(item),
+                )} */}
+            </Card>
+          </Col>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Card
+              title="Signature File"
+              extra={this.renderUpload('signatureFileList', {
+                ...bulkPropsCommon,
+                accept: '.sgn',
+              })}
+            >
+              {/* {signatureFileList.length &&
+                signatureFileList.map(item => (
+                  <p key={item.name}>{item.name}</p>
+                ))} */}
+            </Card>
+          </Col>
+        </Row>
+        <div style={{ textAlign: 'right' }}>
+          <Button type="default" className="uploads" onClick={this.handleModal}>
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            className="blue-btn margin-left"
+            onClick={this.handleOperationalImport}
+          >
+            Import
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  renderModalContent() {
+    return (
+      <Tabs defaultActiveKey="operations">
+        <TabPane tab="Operations" key="operations">
+          {this.renderOperationsTemplate()}
+        </TabPane>
+        <TabPane tab="Procedures" key="procedures">
+          {this.renderProceduresTemplate()}
+        </TabPane>
+      </Tabs>
+    );
   }
 
   triggerImport() {
@@ -144,44 +819,19 @@ class DeviceManagement extends Component {
     //   .catch(error => {
     //     console.log(error);
     //   });
-    const mocData = [
-      {
-        id: 563,
-        name: 'Demo_1553284531600.opn',
-        status: 'Draft',
-        version: 'V1',
-        author: 'merckservice',
-        modifiedDate: 1576134122000,
-        recipe: 'smart',
-        deviceId: '3003',
-        deviceUoPVersion: 'CCP04',
-        deviceUoP: 'CCP',
-        deviceSubFamily: 'Smart XMO',
-        deviceFamily: 'smart',
-        ccprecipelocation: 'Demo_1553284531600.opn',
-        ccpProcedureId: '561',
-      },
-      {
-        id: 564,
-        name: 'Demo1_1553284531600.opn',
-        status: 'Draft',
-        version: 'V1',
-        author: 'merckservice',
-        modifiedDate: 1576134122000,
-        recipe: 'smart',
-        deviceId: '3003',
-        deviceUoPVersion: 'CCP04',
-        deviceUoP: 'CCP',
-        deviceSubFamily: 'Smart XMO',
-        deviceFamily: 'smart',
-        ccprecipelocation: 'Demo1_1553284531600.opn',
-        ccpProcedureId: '561',
-      },
-    ];
     this.setState({
       opnList: mocData,
       sgnList: mocData,
     });
+  }
+
+  triggerDeviceList() {
+    this.setState({ deviceList: mocData, showModal: true });
+  }
+
+  triggerNext() {
+    const data = this.selectedRows;
+    console.log('here data...', data);
   }
 
   getDeviceList() {
@@ -388,7 +1038,11 @@ class DeviceManagement extends Component {
                 className="text-right"
               >
                 <Button icon="download" style={{ marginLeft: '10px' }} />
-                <Button icon="plus" style={{ marginLeft: '10px' }} />
+                <Button
+                  icon="plus"
+                  onClick={this.triggerDeviceList}
+                  style={{ marginLeft: '10px' }}
+                />
                 <Button icon="edit" style={{ marginLeft: '10px' }} />
               </Col>
             </Row>
@@ -411,9 +1065,6 @@ class DeviceManagement extends Component {
               rowSelection={rowSelection}
             />
           </TabPane>
-          {/* <TabPane tab="Phases" key="3">
-            Phases data comes here
-          </TabPane> */}
         </Tabs>
       </div>
     );
@@ -422,16 +1073,6 @@ class DeviceManagement extends Component {
   renderDeviceHeader(title, deviceType) {
     return (
       <div>
-        {/* <Icon
-          type="android"
-          size={100}
-          style={{
-            position: 'absolute',
-            top: '13px',
-            left: '2px',
-            fontSize: '29px',
-          }}
-        /> */}
         {title}
         <Icon
           type="ellipsis"
@@ -448,6 +1089,33 @@ class DeviceManagement extends Component {
     );
   }
 
+  renderDeviceList() {
+    const columns = [
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+      },
+    ];
+    const { selectedRowKeys } = this.state;
+    const rowSelection = {
+      selectedRowKeys,
+      onChange: this.onSelectChange,
+    };
+    return (
+      <div>
+        <h2>Select Devices from the list below</h2>
+        <Table
+          columns={columns}
+          dataSource={mocData}
+          pagination={false}
+          scroll={{ y: 340 }}
+          rowSelection={rowSelection}
+        />
+      </div>
+    );
+  }
+
   renderFilterText() {
     return (
       <div>
@@ -458,7 +1126,12 @@ class DeviceManagement extends Component {
   }
 
   render() {
-    const { showModal, deviceList, showFilter } = this.state;
+    const {
+      showModal,
+      deviceList,
+      showFilter,
+      showOprationalModal,
+    } = this.state;
     return (
       <div>
         <Modal
@@ -467,17 +1140,28 @@ class DeviceManagement extends Component {
           onOk={this.handleModal}
           onCancel={this.handleModal}
           className="upload-popup background-gray"
-          width="1200px"
+          width="400px"
           footer={[
             <Button key="cancel" type="default" onClick={this.handleModal}>
               Cancel
             </Button>,
-            <Button key="submit" type="primary" onClick={this.triggerImport}>
-              Dispatch
+            <Button key="submit" type="primary" onClick={this.triggerNext}>
+              Next
             </Button>,
           ]}
         >
-          {this.renderNewModalContent()}
+          {this.renderDeviceList()}
+        </Modal>
+        <Modal
+          title="Import Operations"
+          visible={showOprationalModal}
+          footer={null}
+          onOk={this.handleModal}
+          onCancel={this.handleModal}
+          className="upload-popup"
+          width="750px"
+        >
+          {this.renderModalContent()}
         </Modal>
         <Button type="default" onClick={() => this.handleModal()}>
           Open Here
@@ -517,69 +1201,6 @@ class DeviceManagement extends Component {
         <div className="upload-popup background-gray">
           {this.renderNewModalContent()}
         </div>
-        {/* <List
-            header={<div>Device List</div>}
-            bordered
-            className="customList"
-            dataSource={deviceList}
-            renderItem={item => (
-              <List.Item>
-                {item.device_name}
-                <Button
-                  type="default"
-                  onClick={() => this.getDeviceData(item.device_name, 'opn')}
-                >
-                  Get Receipes
-                </Button>
-              </List.Item>
-            )}
-          /> */}
-        {/* <div
-          style={{
-            background: '#ECECEC',
-            padding: '30px',
-            position: 'absolute',
-            top: '0',
-            left: '0',
-            height: '100vh',
-            width: '100%',
-          }}
-        >
-          <Row gutter={16}>
-            <Card
-              title="Device List"
-              style={{
-                background: '#ECECEC',
-              }}
-            >
-              {deviceList.length &&
-                deviceList.map(item => (
-                  <Col span={6} style={{ marginBottom: '20px' }} key={item.id}>
-                    <Card
-                      title={this.renderDeviceHeader(
-                        item.device_name,
-                        item.device_type,
-                      )}
-                      bordered={false}
-                      style={{
-                        height: '220px',
-                        width: '250px',
-                      }}
-                    >
-                      <Button
-                        type="default"
-                        onClick={() =>
-                          this.getDeviceData(item.device_name, 'opn')
-                        }
-                      >
-                        Get Receipes
-                      </Button>
-                    </Card>
-                  </Col>
-                ))}
-            </Card>
-          </Row>
-        </div> */}
       </div>
     );
   }

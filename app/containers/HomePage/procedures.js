@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import { Modal, Card, Upload, Button, Row, Input, Col, List } from 'antd';
+import { Modal, Card, Upload, Button, Row, Input, Col, List, Tabs } from 'antd';
 import { find, map, without } from 'lodash';
 
 const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
 const withoutLodash = (array, values) => without(array, values);
+const { TabPane } = Tabs;
 
 export class Procedures extends Component {
   constructor(props) {
@@ -65,10 +66,20 @@ export class Procedures extends Component {
     axios
       .post(url, payload)
       .then(response => {
-        this.success('Success');
+        this.success(response && response.data && response.data.description);
       })
       .catch(error => {
-        this.error('Failure');
+        if (error.response == null) {
+          this.error('Technical error. Please contact administrator');
+        } else {
+          this.error(
+            error &&
+              // error.response
+              error.response.data &&
+              error.response.data.description,
+          );
+          // alert(error.response);
+        }
       });
   };
 
@@ -206,7 +217,7 @@ export class Procedures extends Component {
       const fileNameIndex = fileNameList.indexOf(file.name);
       if (fileNameList.length - 1 === fileNameIndex) {
         if (this.isFilePushed) {
-          this.error('Only one signature file required');
+          this.error('Please select required signature files only');
         } else {
           const str = this.errorFiles.toString();
           this.error(`Upload ${str} files to proceed further`);
@@ -232,7 +243,7 @@ export class Procedures extends Component {
         [actionStatus]: fileList,
       });
     } else {
-      this.error('respective Signature file not found');
+      this.error('Respective Signature file not found');
     }
   }
 
@@ -336,7 +347,7 @@ export class Procedures extends Component {
     );
   }
 
-  renderModalContent() {
+  renderProceduresTemplate() {
     const inputPropsCommon = {
       multiple: false,
       showUploadList: false,
@@ -442,6 +453,84 @@ export class Procedures extends Component {
           </Button>
         </div>
       </div>
+    );
+  }
+
+  renderOperationsTemplate() {
+    const bulkPropsCommon = {
+      multiple: true,
+      showUploadList: true,
+      action: null,
+      beforeUpload: () => false,
+    };
+    const { unitProcedure, signature, deviceName } = this.state;
+    return (
+      <div>
+        <h2>Import Operations for {deviceName}</h2>
+        <p>
+          You can import operations recipes written in recipe editor by
+          specifying the files. These files would be added to the central recipe
+          repository
+        </p>
+
+        <Row align="top" type="flex">
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Card
+              title="Operation"
+              extra={this.renderUpload('operationFileList', {
+                ...bulkPropsCommon,
+                accept: '.opn',
+              })}
+              className="noBorderRight"
+            >
+              {/* {operationFileList.length &&
+                operationFileList.map(item =>
+                  // <p key={item.name}>{item.name}</p>
+                  this.renderUploadItem(item),
+                )} */}
+            </Card>
+          </Col>
+          <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+            <Card
+              title="Signature File"
+              extra={this.renderUpload('signatureFileList', {
+                ...bulkPropsCommon,
+                accept: '.sgn',
+              })}
+            >
+              {/* {signatureFileList.length &&
+                signatureFileList.map(item => (
+                  <p key={item.name}>{item.name}</p>
+                ))} */}
+            </Card>
+          </Col>
+        </Row>
+        <div style={{ textAlign: 'right' }}>
+          <Button type="default" className="uploads" onClick={this.handleModal}>
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            className="blue-btn margin-left"
+            onClick={this.handleImport}
+          >
+            Import
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  renderModalContent() {
+    return (
+      <Tabs defaultActiveKey="operations">
+        <TabPane tab="Operations" key="operations">
+          {this.renderOperationsTemplate()}
+        </TabPane>
+        <TabPane tab="Procedures" key="procedures">
+          {this.renderProceduresTemplate()}
+        </TabPane>
+      </Tabs>
     );
   }
 
