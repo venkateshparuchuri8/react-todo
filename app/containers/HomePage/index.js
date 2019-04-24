@@ -22,7 +22,7 @@ import {
 } from 'antd';
 
 import { find, map, pick, forEach, without } from 'lodash';
-import Highlighter from 'react-highlight-words';
+
 
 const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
@@ -1105,9 +1105,11 @@ class DeviceManagement extends Component {
     return (
       <div>
         <h2>Select Devices from the list below</h2>
+        <Search placeholder="input search text" style={{ marginBottom: '20px' }} />
         <Table
           columns={columns}
           dataSource={mocData}
+          showHeader={false}
           pagination={false}
           scroll={{ y: 340 }}
           rowSelection={rowSelection}
