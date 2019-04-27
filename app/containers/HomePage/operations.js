@@ -14,6 +14,7 @@ import {
   Typography,
 } from 'antd';
 import { find, map, without } from 'lodash';
+import { apiFetchLoggedInUserDetails } from '../../store/actions/OperationActions';
 
 const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
@@ -30,6 +31,7 @@ export class Operations extends Component {
       signature: [],
       deviceName: '',
     };
+    this.isFilePushed = false;
     this.errorFiles = [];
     this.thrownError = false;
     this.statelesskeys = {
@@ -45,6 +47,7 @@ export class Operations extends Component {
   handleModal() {
     const { showModal } = this.state;
     this.thrownError = false;
+    this.isFilePushed = false;
     this.setState({
       showModal: !showModal,
       operationFileList: [],
@@ -56,8 +59,12 @@ export class Operations extends Component {
     this.setState({ deviceName, showModal: true });
   }
 
+  componentDidMount() {
+    console.log(this.props);
+  }
+
   validateSgnFiles(fileList, file, actionStatus) {
-    const { operationFileList, signatureFileList } = this.state;
+    const { operationFileList, signatureFileList, isFilePushed } = this.state;
     const namesList = signatureFileList.map(item => item.name);
     if (signatureFileList.length > fileList.length) {
       this.setState({
@@ -71,6 +78,7 @@ export class Operations extends Component {
         const result = findLodash(operationFileList, { name: fileName[0] });
         if (result) {
           arr.push(fileList[i]);
+          this.isFilePushed = true;
         } else {
           this.errorFiles.push(fileName[0]);
           // this.error(`${fileName[0]} file missing`);
@@ -80,8 +88,12 @@ export class Operations extends Component {
       const fileNameIndex = fileNameList.indexOf(file.name);
       if (fileNameList.length - 1 === fileNameIndex) {
         if (this.errorFiles.length) {
-          const str = this.errorFiles.toString();
-          this.error(`Upload ${str} files to proceed further`);
+          if (this.isFilePushed) {
+            this.error('Please select required signature files only');
+          } else {
+            const str = this.errorFiles.toString();
+            this.error(`Upload ${str} files to proceed further`);
+          }
         }
       }
       this.setState({
@@ -190,12 +202,19 @@ export class Operations extends Component {
         this.success(response && response.data && response.data.description);
       })
       .catch(error => {
-        this.error(
-          error &&
-            error.response &&
-            error.response.data &&
-            error.response.data.description,
-        );
+        if (error.response == null) {
+          this.error(
+            'Technical error. Please contact administrator to proceed furthur.',
+          );
+        } else {
+          this.error(
+            error &&
+              // error.response
+              error.response.data &&
+              error.response.data.description,
+          );
+          // alert(error.response);
+        }
       });
   };
 
@@ -243,6 +262,10 @@ export class Operations extends Component {
           }
           const formData = this.objectToFormData(payload);
           this.apiFetchLoggedInUserDetails(formData);
+          // this.props.apiFetchLoggedInUserDetails({ deviceName: this.state.deviceName, formData })
+          // .then(() => {
+          //   console.log(this.props);
+          // });
         } else if (operationFileList.length > signatureFileList.length) {
           this.validateFiles(operationFileList, signatureFileList, '.sgn');
         } else {
@@ -418,10 +441,13 @@ export class Operations extends Component {
 }
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    userDetails: state.updateOperationActions.userDetails,
+    error: state.updateOperationActions.error,
+  };
 }
 
 export default connect(
   mapStateToProps,
-  {},
+  { apiFetchLoggedInUserDetails },
 )(Operations);

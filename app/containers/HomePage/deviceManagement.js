@@ -21,153 +21,31 @@ import {
   Checkbox,
 } from 'antd';
 
-import { find, map, pick, forEach, without } from 'lodash';
-import Highlighter from 'react-highlight-words';
+import { find, map, pick, filter, without, uniqBy } from 'lodash';
 
+import addIcon from './assets/addIcon.svg';
+import download from './assets/download.svg';
+import filterIcon from './assets/filterIcon.svg';
+import search from './assets/search.svg';
+import file from './downloads/Offline_Recipe_Editor_v6.07.08_May04.exe';
 const findLodash = (array, object) => find(array, object);
 const mapLodash = (array, object) => map(array, object);
 const withoutLodash = (array, values) => without(array, values);
+const uniqLodash = (array, value) => uniqBy(array, value);
+const filterLodash = (array, object) => filter(array, object);
+
 const { TabPane } = Tabs;
 const { Search } = Input;
 const deviceTypes = ['Bioreactor', 'Chromotography', 'TFF'];
 const statusFilters = ['Draft', 'Tech Review', 'In Review', 'Archived'];
-const operations = <h1>Recipe Dispatch</h1>;
-const content = (
-  <div>
-    <div style={{ padding: '5px' }}>Most Recent</div>
-    <div style={{ padding: '5px' }}>Alphabetical</div>
-  </div>
-);
-const mocData = [
-  {
-    id: 563,
-    name: 'Demo_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-  {
-    id: 564,
-    name: 'Demo1_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo1_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-  {
-    id: 565,
-    name: 'Demo_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-  {
-    id: 566,
-    name: 'Demo1_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo1_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-  {
-    id: 567,
-    name: 'Demo_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-  {
-    id: 568,
-    name: 'Demo1_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo1_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-  {
-    id: 569,
-    name: 'Demo_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-  {
-    id: 570,
-    name: 'Demo1_1553284531600.opn',
-    status: 'Draft',
-    version: 'V1',
-    author: 'merckservice',
-    modifiedDate: 1576134122000,
-    recipe: 'smart',
-    deviceId: '3003',
-    deviceUoPVersion: 'CCP04',
-    deviceUoP: 'CCP',
-    deviceSubFamily: 'Smart XMO',
-    deviceFamily: 'smart',
-    ccprecipelocation: 'Demo1_1553284531600.opn',
-    ccpProcedureId: '561',
-  },
-];
+const operations = <h1>Recipe Management</h1>;
+// const content = (
+//   <div>
+//     <div style={{ padding: '5px' }}>Most Recent</div>
+//     <div style={{ padding: '5px' }}>Alphabetical</div>
+//   </div>
+// );
+
 class DeviceManagement extends Component {
   constructor(props) {
     super(props);
@@ -176,6 +54,8 @@ class DeviceManagement extends Component {
       deviceList: [],
       opnList: [],
       sgnList: [],
+      opnSearch: [],
+      sgnSearch: [],
       selectedDevice: '',
       deviceType: '',
       activeKey: '1',
@@ -187,14 +67,22 @@ class DeviceManagement extends Component {
       signature: [],
       deviceName: '',
       showOprationalModal: false,
+      filterPayload: { deviceUoP: [], deviceFamily: [], status: [] },
+      deviceSearchList: [],
     };
     this.isFilePushed = false;
     this.thrownError = false;
     this.errorFiles = [];
     this.statelesskeys = {
-      zaggle_card_client_id: '',
+      searchKey: '',
+      checkedFilterData: {
+        deviceFamily: [],
+        deviceUoP: [],
+        status: [],
+      },
     };
     this.selectedRows = [];
+    this.selectedDevices = [];
     this.handleModal = this.handleModal.bind(this);
     this.getReceipes = this.getReceipes.bind(this);
     this.getDeviceData = this.getDeviceData.bind(this);
@@ -211,11 +99,130 @@ class DeviceManagement extends Component {
     this.handleOperationalImport = this.handleOperationalImport.bind(this);
     this.handleChooseDevice = this.handleChooseDevice.bind(this);
     this.handleClick = this.handleClick.bind(this);
+    this.onSelectDeviceChange = this.onSelectDeviceChange.bind(this);
+    this.handleFileUploadTabSwitchCallback = this.handleFileUploadTabSwitchCallback.bind(
+      this,
+    );
+    this.triggerSearch = this.triggerSearch.bind(this);
+    this.storeSearchValue = this.storeSearchValue.bind(this);
+    this.applyFilter = this.applyFilter.bind(this);
+    this.filterTypeChange = this.filterTypeChange.bind(this);
+    this.handleDeviceSearch = this.handleDeviceSearch.bind(this);
   }
 
   componentWillMount() {
     // this.getDeviceList();
     this.getReceipes('pdr');
+  }
+
+  handleDeviceSearch(value) {
+    const { deviceList } = this.state;
+    const arr = [];
+    for (let i = 0; i < deviceList.length; i += 1) {
+      const str = deviceList[i].device_name.toLowerCase();
+      if (str.indexOf(value.toLowerCase().trim()) !== -1) {
+        arr.push(deviceList[i]);
+      }
+    }
+    this.setState({ deviceSearchList: arr });
+  }
+
+  applyFilter() {
+    const {
+      checkedFilterData: { deviceFamily, deviceUoP, status },
+    } = this.statelesskeys;
+    const { opnList, sgnList, showFilter, activeKey } = this.state;
+    if (activeKey === '1') {
+      let L1 = [];
+      if (deviceUoP.length) {
+        let arr1 = [];
+        for (let i = 0; i < deviceUoP.length; i += 1) {
+          const data = filterLodash(opnList, { deviceUoP: deviceUoP[i] });
+          arr1 = arr1.concat(data);
+        }
+        L1 = arr1;
+      } else {
+        L1 = opnList;
+      }
+      if (deviceFamily.length) {
+        let arr2 = [];
+        for (let i = 0; i < deviceFamily.length; i += 1) {
+          const data = filterLodash(L1, { deviceFamily: deviceFamily[i] });
+          arr2 = arr2.concat(data);
+        }
+        L1 = arr2;
+      }
+      if (status.length) {
+        let arr3 = [];
+        for (let i = 0; i < status.length; i += 1) {
+          const data = filterLodash(L1, { status: status[i] });
+          arr3 = arr3.concat(data);
+        }
+        L1 = arr3;
+      }
+      this.setState({ opnSearch: L1, showFilter: !showFilter });
+    } else {
+      let L1 = [];
+      if (deviceUoP.length) {
+        let arr1 = [];
+        for (let i = 0; i < deviceUoP.length; i += 1) {
+          const data = filterLodash(sgnList, { deviceUoP: deviceUoP[i] });
+          arr1 = arr1.concat(data);
+        }
+        L1 = arr1;
+      } else {
+        L1 = sgnList;
+      }
+      if (deviceFamily.length) {
+        let arr2 = [];
+        for (let i = 0; i < deviceFamily.length; i += 1) {
+          const data = filterLodash(L1, { deviceFamily: deviceFamily[i] });
+          arr2 = arr2.concat(data);
+        }
+        L1 = arr2;
+      }
+      if (status.length) {
+        let arr3 = [];
+        for (let i = 0; i < status.length; i += 1) {
+          const data = filterLodash(L1, { status: status[i] });
+          arr3 = arr3.concat(data);
+        }
+        L1 = arr3;
+      }
+      this.setState({ sgnSearch: L1, showFilter: !showFilter });
+    }
+  }
+
+  filterTypeChange(checkedValues, actionFrom) {
+    this.statelesskeys.checkedFilterData[actionFrom] = checkedValues;
+  }
+
+  triggerSearch(searchKey) {
+    const { opnSearch, opnList, activeKey, sgnList, sgnSearch } = this.state;
+    // const { searchKey } = this.statelesskeys;
+    if (activeKey === '1') {
+      const arr = [];
+      for (let i = 0; i < opnList.length; i += 1) {
+        const str = opnList[i].name.toLowerCase();
+        if (str.indexOf(searchKey.toLowerCase().trim()) !== -1) {
+          arr.push(opnList[i]);
+        }
+      }
+      this.setState({ opnSearch: arr });
+    } else if (activeKey === '2') {
+      const arr = [];
+      for (let i = 0; i < sgnList.length; i += 1) {
+        const str = sgnList[i].name.toLowerCase();
+        if (str.indexOf(searchKey.toLowerCase().trim()) !== -1) {
+          arr.push(sgnList[i]);
+        }
+      }
+      this.setState({ sgnSearch: arr });
+    }
+  }
+
+  storeSearchValue(value) {
+    this.statelesskeys.searchKey = value;
   }
 
   success(message) {
@@ -251,6 +258,7 @@ class DeviceManagement extends Component {
       .post(url, payload)
       .then(response => {
         this.success(response && response.data && response.data.description);
+        this.getReceipes('pdr');
       })
       .catch(error => {
         if (error.response == null) {
@@ -413,7 +421,7 @@ class DeviceManagement extends Component {
   }
 
   validateSgnFiles(fileList, file, actionStatus) {
-    const { operationFileList, signatureFileList } = this.state;
+    const { operationFileList, signatureFileList, isFilePushed } = this.state;
     const namesList = signatureFileList.map(item => item.name);
     if (signatureFileList.length > fileList.length) {
       this.setState({
@@ -436,11 +444,13 @@ class DeviceManagement extends Component {
       const fileNameList = fileList.map(item => item.name);
       const fileNameIndex = fileNameList.indexOf(file.name);
       if (fileNameList.length - 1 === fileNameIndex) {
-        if (this.isFilePushed) {
-          this.error('Please select required signature files only');
-        } else {
-          const str = this.errorFiles.toString();
-          this.error(`Upload ${str} files to proceed further`);
+        if (this.errorFiles.length) {
+          if (this.isFilePushed) {
+            this.error('Please select required signature files only');
+          } else {
+            const str = this.errorFiles.toString();
+            this.error(`Upload ${str} files to proceed further`);
+          }
         }
       }
       this.setState({
@@ -661,7 +671,11 @@ class DeviceManagement extends Component {
           </Col>
         </Row>
         <div style={{ textAlign: 'right' }}>
-          <Button type="default" className="uploads" onClick={this.handleModal}>
+          <Button
+            type="default"
+            className="uploads"
+            onClick={this.handleOprationalModal}
+          >
             Cancel
           </Button>
           <Button
@@ -726,7 +740,11 @@ class DeviceManagement extends Component {
           </Col>
         </Row>
         <div style={{ textAlign: 'right' }}>
-          <Button type="default" className="uploads" onClick={this.handleModal}>
+          <Button
+            type="default"
+            className="uploads"
+            onClick={this.handleOprationalModal}
+          >
             Cancel
           </Button>
           <Button
@@ -743,7 +761,10 @@ class DeviceManagement extends Component {
 
   renderModalContent() {
     return (
-      <Tabs defaultActiveKey="operations">
+      <Tabs
+        defaultActiveKey="operations"
+        onChange={this.handleFileUploadTabSwitchCallback}
+      >
         <TabPane tab="Operations" key="operations">
           {this.renderOperationsTemplate()}
         </TabPane>
@@ -802,36 +823,71 @@ class DeviceManagement extends Component {
     return dataArr;
   }
 
+  getFilterPayload(data) {
+    const deviceUoP = mapLodash(uniqLodash(data, 'deviceUoP'), 'deviceUoP');
+    const deviceFamily = mapLodash(
+      uniqLodash(data, 'deviceFamily'),
+      'deviceFamily',
+    );
+    const status = mapLodash(uniqLodash(data, 'status'), 'status');
+    return {
+      deviceUoP,
+      deviceFamily,
+      status,
+    };
+  }
+
   getReceipes(type) {
-    // const url = `https://localhost:8091/recipe/fetchByDevice/${deviceName}/receipetype/${type}`;
-    // axios
-    //   .get(url)
-    //   .then(response => {
-    //     console.log(response);
-    //     if (type === 'pdr') {
-    //       const data = this.constructPayload(response.data, deviceType);
-    //       this.setState({ opnList: data });
-    //     } else if (type === 'opn') {
-    //       const data = this.constructPayload(response.data, deviceType);
-    //       this.setState({ sgnList: data });
-    //     }
-    //   })
-    //   .catch(error => {
-    //     console.log(error);
-    //   });
-    this.setState({
-      opnList: mocData,
-      sgnList: mocData,
-    });
+    const url = `https://localhost:8091/recipe/fetchByDevice/all/receipetype/${type}`;
+    // url: https://10.2.232.184:8134/metadatas/device_uop_ver/XMO4
+    axios
+      .get(url)
+      .then(response => {
+        if (type === 'pdr') {
+          const data = this.constructPayload(response.data, type);
+          this.setState({
+            opnList: data,
+            opnSearch: data,
+            filterPayload: this.getFilterPayload(data),
+          });
+        } else if (type === 'opn') {
+          const data = this.constructPayload(response.data, type);
+          this.setState({
+            sgnList: data,
+            sgnSearch: data,
+            filterPayload: this.getFilterPayload(data),
+          });
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   triggerDeviceList() {
-    this.setState({ deviceList: mocData, showModal: true });
+    const url = 'https://localhost:8089/api/discoverdDevices/';
+    axios
+      .get(url)
+      .then(response => {
+        this.setState({
+          deviceList: response.data,
+          showModal: true,
+          deviceSearchList: response.data,
+        });
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   triggerNext() {
     const data = this.selectedRows;
-    console.log('here data...', data);
+    const { device_name } = this.selectedDevices[0];
+    this.setState({
+      showModal: false,
+      showOprationalModal: true,
+      deviceName: device_name,
+    });
   }
 
   getDeviceList() {
@@ -887,15 +943,20 @@ class DeviceManagement extends Component {
   handleTabCallback(key) {
     const { selectedDevice, deviceType } = this.state;
     this.selectedRows = [];
-    this.setState({ activeKey: key, selectedRowKeys: [] });
+    this.setState({
+      activeKey: key,
+      selectedRowKeys: [],
+      filterPayload: { deviceUoP: [], deviceFamily: [], status: [] },
+    });
+    this.statelesskeys.searchKey = '';
     switch (key) {
       case '1':
-        return this.getReceipes(selectedDevice, deviceType, 'pdr');
+        return this.getReceipes('pdr');
       case '2':
-        return this.getReceipes(selectedDevice, deviceType, 'opn');
+        return this.getReceipes('opn');
 
       default:
-        return this.getReceipes(selectedDevice, deviceType, 'pdr');
+        return this.getReceipes('pdr');
     }
   }
 
@@ -916,13 +977,36 @@ class DeviceManagement extends Component {
     this.selectedRows = data1;
   };
 
+  onSelectDeviceChange = (selectedRowKeys, selectedRows) => {
+    const data = selectedRowKeys.slice(-1);
+    const data1 = selectedRows.slice(-1);
+    this.setState({ selectedRowKeys: data });
+    this.selectedDevices = data1;
+  };
+
+  handleFileUploadTabSwitchCallback() {
+    this.setState({
+      operationFileList: [],
+      signatureFileList: [],
+      unitProcedure: [],
+      signature: [],
+    });
+  }
+
   triggerFilter() {
     const { showFilter } = this.state;
     this.setState({ showFilter: !showFilter });
   }
 
   renderNewModalContent() {
-    const { opnList, sgnList, activeKey, selectedRowKeys } = this.state;
+    const {
+      opnList,
+      sgnList,
+      activeKey,
+      selectedRowKeys,
+      opnSearch,
+      sgnSearch,
+    } = this.state;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
@@ -933,25 +1017,25 @@ class DeviceManagement extends Component {
         title: 'Procedures',
         dataIndex: 'name',
         key: 'name',
-        width: 400,
+        width: 520,
       },
       {
         title: 'Device Name',
         dataIndex: 'deviceUoP',
         key: 'deviceUoP',
-        width: 150,
+        width: 180,
       },
       {
         title: 'Device Type',
-        dataIndex: 'deviceType',
+        dataIndex: 'deviceFamily',
         key: 'deviceType',
-        width: 150,
+        width: 180,
       },
       {
         title: 'Status',
         dataIndex: 'status',
         key: 'status',
-        width: 100,
+        width: 150,
       },
       {
         title: 'Modified',
@@ -970,25 +1054,25 @@ class DeviceManagement extends Component {
         title: 'Operations',
         dataIndex: 'name',
         key: 'name',
-        width: 400,
+        width: 520,
       },
       {
         title: 'Device Name',
         dataIndex: 'deviceUoP',
         key: 'deviceUoP',
-        width: 150,
+        width: 180,
       },
       {
         title: 'Device Type',
-        dataIndex: 'deviceType',
+        dataIndex: 'deviceFamily',
         key: 'deviceType',
-        width: 150,
+        width: 180,
       },
       {
         title: 'Status',
         dataIndex: 'status',
         key: 'status',
-        width: 100,
+        width: 150,
       },
       {
         title: 'Modified',
@@ -1002,6 +1086,7 @@ class DeviceManagement extends Component {
         ),
       },
     ];
+    const { searchKey } = this.statelesskeys;
     return (
       <div>
         <Tabs
@@ -1012,22 +1097,38 @@ class DeviceManagement extends Component {
           <TabPane tab="Unit Procedures" key="1">
             <Row align="top" type="flex" gutter={16}>
               <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                <Search
-                  placeholder="input search text"
+                <Input
+                  placeholder="Search"
                   style={{ width: 200 }}
+                  onChange={this.storeSearchValue}
+                  onPressEnter={ev => this.triggerSearch(ev.target.value)}
+                  defaultValue={searchKey}
+                  suffix={
+                    <img
+                      src={search}
+                      alt=""
+                      className="menu-icon"
+                      role="presentation"
+                      onClick={() => this.triggerSearch(searchKey)}
+                    />
+                    // <Button onClick={this.triggerSearch}>
+                    //   <img src={search} alt="" className="menu-icon" role="presentation" />
+                    // </Button>
+                  }
                 />
                 <Popover
                   placement="bottomRight"
-                  content={content}
+                  //   content={content}
                   trigger="click"
                 >
-                  <Button icon="download" style={{ marginLeft: '10px' }} />
+                  {/* <Button icon="download" style={{ marginLeft: '10px' }} /> */}
                 </Popover>
                 <Button
-                  icon="filter"
                   onClick={this.triggerFilter}
                   style={{ marginLeft: '10px' }}
-                />
+                >
+                  <img src={filterIcon} alt="" className="menu-icon" />
+                </Button>
               </Col>
               <Col
                 xs={24}
@@ -1037,31 +1138,93 @@ class DeviceManagement extends Component {
                 xl={12}
                 className="text-right"
               >
-                <Button icon="download" style={{ marginLeft: '10px' }} />
+                <Button style={{ marginLeft: '10px' }}>
+                  <a href={file} download>
+                    <img src={download} alt="" className="menu-icon" />
+                  </a>
+                </Button>
                 <Button
-                  icon="plus"
                   onClick={this.triggerDeviceList}
                   style={{ marginLeft: '10px' }}
-                />
-                <Button icon="edit" style={{ marginLeft: '10px' }} />
+                >
+                  <img src={addIcon} alt="" className="menu-icon" />
+                </Button>
+                {/* <Button icon="edit" style={{ marginLeft: '10px' }} /> */}
               </Col>
             </Row>
             <Table
               columns={UPColumns}
               rowKey="id"
-              dataSource={opnList}
+              dataSource={opnSearch}
               pagination={false}
-              scroll={{ y: 340 }}
+              scroll={{ y: 500 }}
               rowSelection={rowSelection}
             />
           </TabPane>
           <TabPane tab="Operations" key="2">
+            <Row align="top" type="flex" gutter={16}>
+              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Input
+                  placeholder="Search"
+                  style={{ width: 200 }}
+                  onChange={this.storeSearchValue}
+                  onPressEnter={ev => this.triggerSearch(ev.target.value)}
+                  defaultValue={searchKey}
+                  suffix={
+                    <img
+                      src={search}
+                      alt=""
+                      className="menu-icon"
+                      role="presentation"
+                      onClick={() => this.triggerSearch(searchKey)}
+                    />
+                    // <Button onClick={this.triggerSearch}>
+                    //   <img src={search} alt="" className="menu-icon" role="presentation" />
+                    // </Button>
+                  }
+                />
+                <Popover
+                  placement="bottomRight"
+                  //   content={content}
+                  trigger="click"
+                >
+                  {/* <Button icon="download" style={{ marginLeft: '10px' }} /> */}
+                </Popover>
+                <Button
+                  onClick={this.triggerFilter}
+                  style={{ marginLeft: '10px' }}
+                >
+                  <img src={filterIcon} alt="" className="menu-icon" />
+                </Button>
+              </Col>
+              <Col
+                xs={24}
+                sm={24}
+                md={12}
+                lg={12}
+                xl={12}
+                className="text-right"
+              >
+                <Button style={{ marginLeft: '10px' }}>
+                  <a href={file} download>
+                    <img src={download} alt="" className="menu-icon" />
+                  </a>
+                </Button>
+                <Button
+                  onClick={this.triggerDeviceList}
+                  style={{ marginLeft: '10px' }}
+                >
+                  <img src={addIcon} alt="" className="menu-icon" />
+                </Button>
+                {/* <Button icon="edit" style={{ marginLeft: '10px' }} /> */}
+              </Col>
+            </Row>
             <Table
               columns={OPColumns}
               rowKey="id"
-              dataSource={sgnList}
+              dataSource={sgnSearch}
               pagination={false}
-              scroll={{ y: 340 }}
+              scroll={{ y: 500 }}
               rowSelection={rowSelection}
             />
           </TabPane>
@@ -1093,23 +1256,31 @@ class DeviceManagement extends Component {
     const columns = [
       {
         title: 'Name',
-        dataIndex: 'name',
-        key: 'name',
+        dataIndex: 'device_name',
+        key: 'device_name',
       },
     ];
-    const { selectedRowKeys } = this.state;
+    const { selectedRowKeys, deviceSearchList } = this.state;
     const rowSelection = {
       selectedRowKeys,
-      onChange: this.onSelectChange,
+      onChange: this.onSelectDeviceChange,
     };
     return (
       <div>
         <h2>Select Devices from the list below</h2>
+        {/* <Search placeholder="Search" style={{ marginBottom: '20px' }} /> */}
+        <Input
+          placeholder="Search"
+          style={{ width: 200, marginBottom: '20px' }}
+          suffix={<img src={search} alt="" className="menu-icon" />}
+          onPressEnter={ev => this.handleDeviceSearch(ev.target.value)}
+        />
         <Table
           columns={columns}
-          dataSource={mocData}
+          dataSource={deviceSearchList}
+          showHeader={false}
           pagination={false}
-          scroll={{ y: 340 }}
+          scroll={{ y: 360 }}
           rowSelection={rowSelection}
         />
       </div>
@@ -1119,8 +1290,60 @@ class DeviceManagement extends Component {
   renderFilterText() {
     return (
       <div>
-        <Icon type="filter" theme="filled" style={{ color: 'blue' }} /> Filter
-        By
+        <img src={filterIcon} alt="" className="menu-icon" /> Filter By
+      </div>
+    );
+  }
+
+  renderFilterContent(payload) {
+    const { deviceUoP, deviceFamily, status } = payload;
+    return (
+      <div>
+        <h4>Device Name</h4>
+        <Checkbox.Group
+          style={{ width: '100%' }}
+          onChange={values => this.filterTypeChange(values, 'deviceUoP')}
+        >
+          <Row>
+            {deviceUoP.length &&
+              deviceUoP.map(item => (
+                <Col span={24}>
+                  <Checkbox value={item}>{item}</Checkbox>
+                </Col>
+              ))}
+          </Row>
+        </Checkbox.Group>
+        <h4>Device Type</h4>
+        <Checkbox.Group
+          style={{ width: '100%' }}
+          onChange={values => this.filterTypeChange(values, 'deviceFamily')}
+        >
+          <Row>
+            {deviceFamily.length &&
+              deviceFamily.map(item => (
+                <Col span={24}>
+                  <Checkbox value={item}>{item}</Checkbox>
+                </Col>
+              ))}
+          </Row>
+        </Checkbox.Group>
+        <h4>Status</h4>
+        <Checkbox.Group
+          style={{ width: '100%' }}
+          onChange={values => this.filterTypeChange(values, 'status')}
+        >
+          <Row>
+            {status.length &&
+              status.map(item => (
+                <Col span={24}>
+                  <Checkbox value={item}>{item}</Checkbox>
+                </Col>
+              ))}
+          </Row>
+        </Checkbox.Group>
+        <Button type="primary" onClick={this.applyFilter}>
+          Apply
+        </Button>
       </div>
     );
   }
@@ -1131,6 +1354,8 @@ class DeviceManagement extends Component {
       deviceList,
       showFilter,
       showOprationalModal,
+      selectedRowKeys,
+      filterPayload,
     } = this.state;
     return (
       <div>
@@ -1142,7 +1367,12 @@ class DeviceManagement extends Component {
           className="upload-popup background-gray"
           width="400px"
           footer={[
-            <Button key="cancel" type="default" onClick={this.handleModal}>
+            <Button
+              key="cancel"
+              type="default"
+              onClick={this.handleModal}
+              disabled={selectedRowKeys.length === 0}
+            >
               Cancel
             </Button>,
             <Button key="submit" type="primary" onClick={this.triggerNext}>
@@ -1156,16 +1386,13 @@ class DeviceManagement extends Component {
           title="Import Operations"
           visible={showOprationalModal}
           footer={null}
-          onOk={this.handleModal}
-          onCancel={this.handleModal}
+          onOk={this.handleOprationalModal}
+          onCancel={this.handleOprationalModal}
           className="upload-popup"
           width="750px"
         >
           {this.renderModalContent()}
         </Modal>
-        <Button type="default" onClick={() => this.handleModal()}>
-          Open Here
-        </Button>
         <Drawer
           title={this.renderFilterText()}
           placement="right"
@@ -1175,28 +1402,7 @@ class DeviceManagement extends Component {
           maskClosable={false}
           width={350}
         >
-          <h4>Device Type</h4>
-          <Checkbox.Group style={{ width: '100%' }}>
-            <Row>
-              {deviceTypes.length &&
-                deviceTypes.map(item => (
-                  <Col span={24}>
-                    <Checkbox value={item}>{item}</Checkbox>
-                  </Col>
-                ))}
-            </Row>
-          </Checkbox.Group>
-          <h4>Status</h4>
-          <Checkbox.Group style={{ width: '100%' }}>
-            <Row>
-              {statusFilters.length &&
-                statusFilters.map(item => (
-                  <Col span={24}>
-                    <Checkbox value={item}>{item}</Checkbox>
-                  </Col>
-                ))}
-            </Row>
-          </Checkbox.Group>
+          {this.renderFilterContent(filterPayload)}
         </Drawer>
         <div className="upload-popup background-gray">
           {this.renderNewModalContent()}
